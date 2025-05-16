@@ -2,10 +2,11 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CustomerController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Home', [
+    return Inertia::render('Home/Show', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
     ]);
@@ -17,6 +18,10 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        return Inertia::render('Dashboard/Show');
     })->name('dashboard');
+
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::post('/customers/{id}', [CustomerController::class, 'update'])->name('customers.update');
 });

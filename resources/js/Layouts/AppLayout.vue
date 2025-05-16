@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import Banner from '@/Components/Banner.vue';
 import NavigationMenuPrimary from '@/Components/Navigation/NavigationMenuPrimary.vue';
 import NavigationMenuResponsive from '@/Components/Navigation/NavigationMenuResponsive.vue';

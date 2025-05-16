@@ -1,5 +1,5 @@
 <script setup>
-import HomeCard from '@/Pages/Partials/HomeCard.vue';
+import HomeCard from '@/Pages/Home/Partials/HomeCard.vue';
 </script>
 
 <template>

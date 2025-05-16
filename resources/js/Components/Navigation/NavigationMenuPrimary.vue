@@ -29,9 +29,12 @@ const emit = defineEmits(['update:showing-navigation-dropdown']);
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <NavLink v-if="$page.props.auth.user" :href="route('dashboard')" :active="route().current('dashboard')">
+                <div v-if="$page.props.auth.user" class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                         Dashboard
+                    </NavLink>
+                    <NavLink :href="route('customers.index')" :active="route().current('customers.index')">
+                        Customers
                     </NavLink>
                 </div>
             </div>

@@ -45,4 +45,12 @@ class Team extends JetstreamTeam
             'personal_team' => 'boolean',
         ];
     }
+
+    /**
+     * Get the customers for the team.
+     */
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
 }

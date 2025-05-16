@@ -1,6 +1,6 @@
 <script setup>
-import Welcome from '@/Pages/Partials/Welcome.vue';
-import Features from '@/Pages/Partials/Features.vue';
+import Welcome from '@/Pages/Home/Partials/Welcome.vue';
+import Features from '@/Pages/Home/Partials/Features.vue';
 </script>
 
 <template>
