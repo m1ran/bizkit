@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineProps } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CustomerForm from './Partials/CustomerForm.vue';
 import CustomerTable from './Partials/CustomerTable.vue';
@@ -8,6 +8,15 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
+
+defineProps({
+    customers: {
+        type: Object
+    },
+    filters: {
+        type: Object
+    }
+})
 
 const form = useForm({
     first_name: '',
@@ -78,9 +87,10 @@ const deleteCustomer = () => {
             <CustomerTable
                 @open="onOpenCustomerFormModal"
                 @delete="onConfirmCustomerModal"
-                :customers="$page.props.customers"
-                :filters="$page.props.filters"
+                :customers="customers"
+                :filters="filters"
             />
+
             <!-- Create/Update Customer Modal -->
             <DialogModal :show="showFormModal" @close="closeModals">
                 <template #title>{{ formTitle }}</template>
