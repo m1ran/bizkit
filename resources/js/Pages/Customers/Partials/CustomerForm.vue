@@ -5,7 +5,7 @@ import TextInput from '@/Components/TextInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
 import { defineProps, defineEmits } from 'vue';
 
-defineProps({
+const { form } = defineProps({
     form: {
         type: Object,
         required: true,
