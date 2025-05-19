@@ -1,11 +1,13 @@
 <script setup>
-import { onErrorCaptured, ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CustomerForm from './Partials/CustomerForm.vue';
 import CustomerTable from './Partials/CustomerTable.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import ConfirmationModal from '@/Components/ConfirmationModal.vue';
+import DangerButton from '@/Components/DangerButton.vue';
 
 const form = useForm({
     first_name: '',
@@ -16,10 +18,15 @@ const form = useForm({
     notes: '',
 });
 
+const formTitle = computed(() => {
+    return customer.value ? 'Update Customer' : 'New Customer';
+})
+
 const customer = ref(null);
 const showFormModal = ref(false);
+const showConfirmationModal = ref(false);
 
-const openModal = (data = null) => {
+const onOpenCustomerFormModal = (data = null) => {
     customer.value = data;
 
     if (data) {
@@ -34,18 +41,21 @@ const openModal = (data = null) => {
     showFormModal.value = true;
 };
 
-const closeModal = () => {
+const  onConfirmCustomerModal = (data) => {
+    customer.value = data;
+    showConfirmationModal.value = true;
+}
+
+const closeModals = () => {
     showFormModal.value = false;
+    showConfirmationModal.value = false;
 };
 
 const formOptions = {
     preserveScroll: true,
     onSuccess: () => {
-        closeModal();
+        closeModals();
         form.reset();
-    },
-    onError: (error) => {
-        alert('dfdsfsdf');
     }
 }
 
@@ -56,28 +66,29 @@ const saveCustomer = () => {
         form.post(route('customers.store'), formOptions);
     }
 };
+
+const deleteCustomer = () => {
+    form.delete(route('customers.delete', { id: customer.value.id }), formOptions);
+}
 </script>
 
 <template>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- <CustomerForm />
-
-            <SectionBorder /> -->
-
             <CustomerTable
-                @open="openModal"
+                @open="onOpenCustomerFormModal"
+                @delete="onConfirmCustomerModal"
                 :customers="$page.props.customers"
                 :filters="$page.props.filters"
             />
-
-            <DialogModal :show="showFormModal" @close="closeModal">
-                <template #title>New Customer</template>
+            <!-- Create/Update Customer Modal -->
+            <DialogModal :show="showFormModal" @close="closeModals">
+                <template #title>{{ formTitle }}</template>
                 <template #content>
                     <CustomerForm v-model:form="form" @submitted="saveCustomer" />
                 </template>
                 <template #footer>
-                    <SecondaryButton @click="closeModal">
+                    <SecondaryButton @click="closeModals">
                         Cancel
                     </SecondaryButton>
 
@@ -91,6 +102,32 @@ const saveCustomer = () => {
                     </PrimaryButton>
                 </template>
             </DialogModal>
+
+            <!-- Delete Customer Confirmation Modal -->
+            <ConfirmationModal :show="showConfirmationModal" @close="closeModals">
+                <template #title>
+                    Delete Customer
+                </template>
+
+                <template #content>
+                    Are you sure you want to delete this customer? Once a customer is deleted, all of its resources and data will be permanently deleted.
+                </template>
+
+                <template #footer>
+                    <SecondaryButton @click="closeModals">
+                        Cancel
+                    </SecondaryButton>
+
+                    <DangerButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                        @click="deleteCustomer"
+                    >
+                        Delete Customer
+                    </DangerButton>
+                </template>
+            </ConfirmationModal>
         </div>
     </div>
 </template>

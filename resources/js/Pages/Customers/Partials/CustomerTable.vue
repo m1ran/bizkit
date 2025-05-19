@@ -20,18 +20,13 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['open']);
+const emit = defineEmits(['open', 'delete']);
 
 const search = debounce ((value) => {
     router.get(route('customers.index'), { q: value }, { preserveState: true, replace: true });
 }, 500);
 
 const q = ref(props.filters.q);
-const customerBeingRemoved = ref(null);
-
-const confirmCustomerRemoval = (customer) => {
-    customerBeingRemoved.value = customer;
-};
 
 watch(q, newValue => {
     search(newValue);
@@ -86,7 +81,7 @@ watch(q, newValue => {
 
                                 <button
                                     class="cursor-pointer ml-3 text-sm text-red-500"
-                                    @click="confirmCustomerRemoval(customer)"
+                                    @click="$emit('delete', customer)"
                                 >
                                     Remove
                                 </button>

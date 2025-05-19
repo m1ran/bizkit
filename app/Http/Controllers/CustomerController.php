@@ -47,19 +47,21 @@ class CustomerController extends Controller
     {
         $data = $request->validated();
 
+        $flashData = [
+            'flash.banner' => __('Customer updated successfully.'),
+            'flash.bannerStyle' => 'success',
+        ];
+
         try {
             $repository->updateForTeam(auth()->user()->current_team_id, $id, $data);
         } catch (Exception $e) {
-            return redirect()->route('customers.index')->with([
+            $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
                 'flash.bannerStyle' => 'danger',
-            ]);
+            ];
         }
 
-        return redirect()->route('customers.index')->with([
-            'flash.banner' => __('Customer updated successfully.'),
-            'flash.bannerStyle' => 'success',
-        ]);
+        return redirect()->route('customers.index')->with($flashData);
     }
 
     /**
@@ -67,18 +69,20 @@ class CustomerController extends Controller
      */
     public function destroy(CustomerRepositoryInterface $repository, string $id)
     {
+        $flashData = [
+            'flash.banner' => __('Customer deleted successfully.'),
+            'flash.bannerStyle' => 'success',
+        ];
+
         try {
             $repository->deleteForTeam(auth()->user()->current_team_id, $id);
         } catch (Exception $e) {
-            return redirect()->route('customers.index')->with([
+            $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
                 'flash.bannerStyle' => 'danger',
-            ]);
+            ];
         }
 
-        return redirect()->route('customers.index')->with([
-            'flash.banner' => __('Customer deleted successfully.'),
-            'flash.bannerStyle' => 'success',
-        ]);
+        return redirect()->route('customers.index')->with($flashData);
     }
 }
