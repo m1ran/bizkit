@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Repositories\Eloquent;
+namespace App\Repositories;
 
+use App\Contracts\TeamScopedRepositoryInterface;
 use App\Models\Customer;
-use App\Repositories\Contracts\CustomerRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
-class CustomerRepository implements CustomerRepositoryInterface
+class CustomerRepository implements TeamScopedRepositoryInterface
 {
     public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
@@ -33,23 +35,34 @@ class CustomerRepository implements CustomerRepositoryInterface
             ->onEachSide(1);
     }
 
+    public function findByTeam(int $teamId, int $id): Customer
+    {
+        return Customer::where('team_id', $teamId)->findOrFail($id);
+    }
+
     public function createForTeam(int $teamId, array $data): Customer
     {
-        return Customer::create(array_merge($data, ['team_id' => $teamId]));
+        return DB::transaction(function () use ($teamId, $data) {
+            return Customer::create(array_merge($data, ['team_id' => $teamId]));
+        });
     }
 
     public function updateForTeam(int $teamId, int $id, array $data): Customer
     {
-        $customer = Customer::where('team_id', $teamId)->findOrFail($id);
-        $customer->update($data);
+        return DB::transaction(function () use ($teamId, $id, $data) {
+            $customer = Customer::where('team_id', $teamId)->findOrFail($id);
+            $customer->update($data);
 
-        return $customer;
+            return $customer;
+        });
     }
 
     public function deleteForTeam(int $teamId, int $id): bool
     {
-        $customer = Customer::where('team_id', $teamId)->findOrFail($id);
+        return DB::transaction(function () use ($teamId, $id) {
+            $customer = Customer::where('team_id', $teamId)->findOrFail($id);
 
-        return $customer->delete();
+            return $customer->delete();
+        });
     }
 }

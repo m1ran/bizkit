@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
+    use Auditable;
     use SoftDeletes;
 
     protected $fillable = [
@@ -33,6 +35,13 @@ class Customer extends Model
         'deleted_at' => 'datetime',
     ];
 
+    protected $auditable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+    ];
+
     public function team()
     {
         return $this->belongsTo(Team::class);
@@ -46,15 +55,5 @@ class Customer extends Model
     public function state()
     {
         return $this->belongsTo(State::class);
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function updater()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 }

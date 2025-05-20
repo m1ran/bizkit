@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use App\Factories\RepositoryFactory;
+use App\Factories\ServiceFactory;
 use App\Models\Customer;
 use Illuminate\Support\ServiceProvider;
-use App\Observers\CustomerObserver;
-use App\Repositories\Eloquent\CustomerRepository;
-use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Observers\AuditableObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
+        $this->app->singleton(ServiceFactory::class);
+        $this->app->singleton(RepositoryFactory::class);
     }
 
     /**
@@ -23,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Customer::observe(CustomerObserver::class);
+        Customer::observe(AuditableObserver::class);
     }
 }

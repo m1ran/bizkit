@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, defineProps } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CustomerForm from './Partials/CustomerForm.vue';
 import CustomerTable from './Partials/CustomerTable.vue';

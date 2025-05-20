@@ -2,22 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Factories\RepositoryFactory;
+use App\Factories\ServiceFactory;
 use Inertia\Inertia;
 use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerResource;
-use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Services\CustomerService;
 use Exception;
 
 class CustomerController extends Controller
 {
+    private CustomerService $service;
+
+    public function __construct(ServiceFactory $factory)
+    {
+        $this->service = $factory->make('customer');
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(CustomerRepositoryInterface $repository)
+    public function index()
     {
         $filters = request()->only(['q']);
 
-        $customers = $repository->getByTeamPaginated(auth()->user()->current_team_id, $filters);
+        $customers = $this->service->list($filters);
 
         return Inertia::render('Customers/Index', [
             'customers' => CustomerResource::collection($customers),
@@ -28,11 +37,9 @@ class CustomerController extends Controller
     /**
      * Store a newly created customer in storage.
      */
-    public function store(CustomerRequest $request, CustomerRepositoryInterface $repository)
+    public function store(CustomerRequest $request)
     {
-        $data = $request->validated();
-
-        $repository->createForTeam(auth()->user()->current_team_id, $data);
+        $this->service->create($request->validated());
 
         return redirect()->route('customers.index')->with([
             'flash.banner' => __('Customer created successfully.'),
@@ -43,17 +50,15 @@ class CustomerController extends Controller
     /**
      * Update the specified customer in storage.
      */
-    public function update(CustomerRequest $request, CustomerRepositoryInterface $repository, string $id)
+    public function update(CustomerRequest $request, string $id)
     {
-        $data = $request->validated();
-
         $flashData = [
             'flash.banner' => __('Customer updated successfully.'),
             'flash.bannerStyle' => 'success',
         ];
 
         try {
-            $repository->updateForTeam(auth()->user()->current_team_id, $id, $data);
+            $this->service->update($id, $request->validated());
         } catch (Exception $e) {
             $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
@@ -67,7 +72,7 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CustomerRepositoryInterface $repository, string $id)
+    public function destroy(string $id)
     {
         $flashData = [
             'flash.banner' => __('Customer deleted successfully.'),
@@ -75,7 +80,7 @@ class CustomerController extends Controller
         ];
 
         try {
-            $repository->deleteForTeam(auth()->user()->current_team_id, $id);
+            $this->service->delete($id);
         } catch (Exception $e) {
             $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
