@@ -20,7 +20,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['open', 'delete']);
+const emit = defineEmits(['open', 'history', 'delete']);
 
 const search = debounce ((value) => {
     router.get(route('customers.index'), { q: value }, { preserveState: true, replace: true });
@@ -73,10 +73,17 @@ watch(q, newValue => {
                             <td class="px-4 py-2 border">{{ customer.notes }}</td>
                             <td class="px-4 py-2 border">
                                 <button
-                                    class="text-sm text-gray-400 underline"
+                                    class="text-sm text-blue-400 underline"
                                     @click="$emit('open', customer)"
                                 >
                                     Edit
+                                </button>
+
+                                <button
+                                    class="ml-3 text-sm text-gray-400 underline"
+                                    @click="$emit('history', customer.id)"
+                                >
+                                    History
                                 </button>
 
                                 <button

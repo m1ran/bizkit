@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Factories\RepositoryFactory;
 use App\Factories\ServiceFactory;
 use Inertia\Inertia;
 use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerResource;
 use App\Services\CustomerService;
-use Exception;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class CustomerController extends Controller
 {
@@ -39,12 +39,25 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        $this->service->create($request->validated());
-
-        return redirect()->route('customers.index')->with([
+        $flashData = [
             'flash.banner' => __('Customer created successfully.'),
             'flash.bannerStyle' => 'success',
-        ]);
+        ];
+
+        try {
+            $this->service->create($request->validated());
+        } catch (Throwable $e) {
+            Log::error("CustomerController@create error: {$e->getMessage()}", [
+                'exception' => $e,
+            ]);
+
+            $flashData = [
+                'flash.banner' => __('Check for correct customer data.'),
+                'flash.bannerStyle' => 'danger',
+            ];
+        }
+
+        return redirect()->route('customers.index')->with($flashData);
     }
 
     /**
@@ -59,7 +72,12 @@ class CustomerController extends Controller
 
         try {
             $this->service->update($id, $request->validated());
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            Log::error("CustomerController@update error: {$e->getMessage()}", [
+                'exception' => $e,
+                'id' => $id,
+            ]);
+
             $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
                 'flash.bannerStyle' => 'danger',
@@ -81,7 +99,12 @@ class CustomerController extends Controller
 
         try {
             $this->service->delete($id);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            Log::error("CustomerController@destroy error: {$e->getMessage()}", [
+                'exception' => $e,
+                'id'        => $id,
+            ]);
+
             $flashData = [
                 'flash.banner' => __('Check for correct customer data.'),
                 'flash.bannerStyle' => 'danger',

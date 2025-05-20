@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\HistoryController;
 
 Route::middleware([
+    'web',
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',

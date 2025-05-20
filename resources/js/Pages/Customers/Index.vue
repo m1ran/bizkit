@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, shallowRef, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CustomerForm from './Partials/CustomerForm.vue';
 import CustomerTable from './Partials/CustomerTable.vue';
@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
+import HistoryModal from '@/Components/HistoryModal.vue';
 
 defineProps({
     customers: {
@@ -32,8 +33,9 @@ const formTitle = computed(() => {
 })
 
 const customer = ref(null);
-const showFormModal = ref(false);
-const showConfirmationModal = ref(false);
+const customerId = shallowRef(0);
+const showFormModal = shallowRef(false);
+const showConfirmationModal = shallowRef(false);
 
 const onOpenCustomerFormModal = (data = null) => {
     customer.value = data;
@@ -50,12 +52,17 @@ const onOpenCustomerFormModal = (data = null) => {
     showFormModal.value = true;
 };
 
-const  onConfirmCustomerModal = (data) => {
+const onShowCustomerHistory = (id) => {
+    customerId.value = id;
+}
+
+const onConfirmCustomerModal = (data) => {
     customer.value = data;
     showConfirmationModal.value = true;
 }
 
 const closeModals = () => {
+    customerId.value = 0;
     showFormModal.value = false;
     showConfirmationModal.value = false;
 };
@@ -86,10 +93,14 @@ const deleteCustomer = () => {
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <CustomerTable
                 @open="onOpenCustomerFormModal"
+                @history="onShowCustomerHistory"
                 @delete="onConfirmCustomerModal"
                 :customers="customers"
                 :filters="filters"
             />
+
+            <!-- Instance History Modal  -->
+            <HistoryModal v-if="customerId" :id="customerId" entity="customer" @close="closeModals" />
 
             <!-- Create/Update Customer Modal -->
             <DialogModal :show="showFormModal" @close="closeModals">

@@ -26,7 +26,8 @@ trait Auditable
     public function getAudits()
     {
         return $this->audits()
-                    ->orderByDesc('created_at')
-                    ->get();
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
     }
 }
