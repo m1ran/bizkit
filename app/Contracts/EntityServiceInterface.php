@@ -5,7 +5,7 @@ namespace App\Contracts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-interface InstanceServiceInterface
+interface EntityServiceInterface
 {
     public function list(array $filters, int $perPage = 10): LengthAwarePaginator;
 

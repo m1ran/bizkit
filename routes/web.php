@@ -21,6 +21,10 @@ Route::middleware([
         return Inertia::render('Dashboard/Show');
     })->name('dashboard');
 
+    // Route::group(function () {
+
+    // });
+
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::post('/customers/{id}', [CustomerController::class, 'update'])->name('customers.update');

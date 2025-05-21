@@ -20,7 +20,7 @@ trait Auditable
     public function audits(): HasMany
     {
         return $this->hasMany(Audit::class, 'auditable_id')
-            ->where('auditable_instance', class_basename($this));
+            ->where('auditable_entity', class_basename($this));
     }
 
     public function getAudits()

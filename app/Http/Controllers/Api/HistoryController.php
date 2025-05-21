@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Factories\RepositoryFactory;
-use App\Factories\ServiceFactory;
+use App\Factories\EntityServiceFactory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -13,11 +12,11 @@ class HistoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function show(string $entity, int $id, ServiceFactory $factory)
+    public function show(string $entity, int $id, EntityServiceFactory $factory)
     {
         try {
             $service = $factory->make($entity);
-            // Get instance history records
+            // Get entity history records
             $history = $service->history($id);
 
             return response()->json(compact('id', 'entity', 'history'));

@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Factories\RepositoryFactory;
-use App\Factories\ServiceFactory;
+use App\Factories\EntityServiceFactory;
 use App\Models\Customer;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\AuditableObserver;
@@ -15,8 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(ServiceFactory::class);
         $this->app->singleton(RepositoryFactory::class);
+        $this->app->singleton(EntityServiceFactory::class);
     }
 
     /**

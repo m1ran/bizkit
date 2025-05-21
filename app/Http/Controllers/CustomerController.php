@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Factories\ServiceFactory;
+use Throwable;
 use Inertia\Inertia;
 use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerResource;
 use App\Services\CustomerService;
 use Illuminate\Support\Facades\Log;
-use Throwable;
+use App\Factories\EntityServiceFactory;
 
 class CustomerController extends Controller
 {
     private CustomerService $service;
 
-    public function __construct(ServiceFactory $factory)
+    public function __construct(EntityServiceFactory $factory)
     {
         $this->service = $factory->make('customer');
     }

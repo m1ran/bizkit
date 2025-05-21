@@ -2,18 +2,19 @@
 
 namespace App\Services;
 
-use App\Contracts\InstanceServiceInterface;
-use App\Factories\RepositoryFactory;
 use App\Models\Customer;
+use App\Factories\RepositoryFactory;
 use App\Repositories\CustomerRepository;
+use App\Contracts\EntityServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class CustomerService implements InstanceServiceInterface
+class CustomerService implements EntityServiceInterface
 {
     private int $teamId;
     private CustomerRepository $repo;
+
     /**
-     * Create a new class instance.
+     * Create a new class entity.
      */
     public function __construct(RepositoryFactory $factory)
     {

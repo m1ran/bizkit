@@ -2,17 +2,17 @@
 
 namespace App\Factories;
 
-use App\Contracts\InstanceServiceInterface;
+use App\Contracts\EntityServiceInterface;
 use App\Services\CustomerService;
 use InvalidArgumentException;
 
-class ServiceFactory
+class EntityServiceFactory
 {
     protected array $map = [
         'customer' => CustomerService::class
     ];
 
-    public function make(string $key): InstanceServiceInterface
+    public function make(string $key): EntityServiceInterface
     {
         if (! isset($this->map[$key]))  {
             throw new InvalidArgumentException("No service mapped for type {$key}");
