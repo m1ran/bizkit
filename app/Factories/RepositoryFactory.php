@@ -4,11 +4,13 @@ namespace App\Factories;
 
 use App\Contracts\TeamScopedRepositoryInterface;
 use App\Repositories\CustomerRepository;
+use App\Repositories\ProductRepository;
 use InvalidArgumentException;
 
 class RepositoryFactory
 {
     protected array $map = [
+        'product' => ProductRepository::class,
         'customer' => CustomerRepository::class
     ];
 

@@ -33,8 +33,13 @@ const emit = defineEmits(['update:showing-navigation-dropdown']);
                     <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                         Dashboard
                     </NavLink>
+
                     <NavLink :href="route('customers.index')" :active="route().current('customers.index')">
                         Customers
+                    </NavLink>
+
+                    <NavLink :href="route('products.index')" :active="route().current('products.index')">
+                        Products
                     </NavLink>
                 </div>
             </div>

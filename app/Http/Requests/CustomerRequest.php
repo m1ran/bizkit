@@ -30,7 +30,6 @@ class CustomerRequest extends FormRequest
             'address'          => ['nullable', 'string', 'max:255'],
             'city'             => ['nullable', 'string', 'max:255'],
             'state_id'         => ['nullable', 'exists:states,id'],
-            'region_id'        => ['nullable', 'exists:regions,id'],
             'zip'              => ['nullable', 'string', 'max:20'],
             'notes'            => ['nullable', 'string', 'max:1000'],
         ];
@@ -39,17 +38,16 @@ class CustomerRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'first_name'       => __('First Name'),
-            'last_name'        => __('Last Name'),
-            'patronymic_name'  => __('Patronymic Name'),
-            'email'            => __('Email'),
-            'phone'            => __('Phone'),
-            'address'          => __('Address'),
-            'city'             => __('City'),
-            'state_id'         => __('State'),
-            'region_id'        => __('Region'),
-            'zip'              => __('ZIP Code'),
-            'notes'            => __('Notes'),
+            'first_name' => __('First Name'),
+            'last_name' => __('Last Name'),
+            'patronymic_name' => __('Patronymic Name'),
+            'email' => __('Email'),
+            'phone' => __('Phone'),
+            'address' => __('Address'),
+            'city' => __('City'),
+            'state_id' => __('State'),
+            'zip' => __('ZIP Code'),
+            'notes' => __('Notes'),
         ];
     }
 
@@ -64,15 +62,15 @@ class CustomerRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'first_name'      => trim($this->first_name),
-            'last_name'       => trim($this->last_name),
+            'first_name' => trim($this->first_name),
+            'last_name' => trim($this->last_name),
             'patronymic_name' => trim($this->patronymic_name),
-            'email'           => trim($this->email),
-            'phone'           => trim($this->phone),
-            'address'         => trim($this->address),
-            'city'            => trim($this->city),
-            'zip'             => trim($this->zip),
-            'notes'           => trim($this->notes),
+            'email' => trim($this->email),
+            'phone' => trim($this->phone),
+            'address' => trim($this->address),
+            'city' => trim($this->city),
+            'zip' => trim($this->zip),
+            'notes' => trim($this->notes),
         ]);
     }
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
-            $table->foreignId('region_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('state_id')->nullable()->constrained()->nullOnDelete();
             $table->string('zip')->nullable();
             $table->string('notes')->nullable();
             $table->timestamps();

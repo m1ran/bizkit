@@ -13,8 +13,4 @@ Route::middleware([
         '/history/{entity}/{id}',
         [HistoryController::class, 'show'],
     )->where('entity', 'customer|product');
-
-    // Route::get('/user', function (Request $request) {
-    //     return $request->user();
-    // });
 });

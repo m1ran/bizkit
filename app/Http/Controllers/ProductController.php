@@ -3,21 +3,21 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Http\Requests\CustomerRequest;
-use App\Http\Resources\CustomerResource;
-use App\Services\CustomerService;
+use App\Http\Requests\ProductRequest;
 use App\Factories\EntityServiceFactory;
+use App\Http\Resources\ProductResource;
+use App\Services\ProductService;
 use App\Traits\HandleCrudActions;
 
-class CustomerController extends Controller
+class ProductController extends Controller
 {
     use HandleCrudActions;
 
-    private CustomerService $service;
+    private ProductService $service;
 
     public function __construct(EntityServiceFactory $factory)
     {
-        $this->service = $factory->make('customer');
+        $this->service = $factory->make('product');
     }
 
     /**
@@ -27,10 +27,10 @@ class CustomerController extends Controller
     {
         $filters = request()->only(['q']);
 
-        $customers = $this->service->list($filters);
+        $products = $this->service->list($filters);
 
-        return Inertia::render('Customers/Index', [
-            'customers' => CustomerResource::collection($customers),
+        return Inertia::render('Products/Index', [
+            'products' => ProductResource::collection($products),
             'filters' => request()->only(['q']),
         ]);
     }
@@ -38,26 +38,26 @@ class CustomerController extends Controller
     /**
      * Store a newly created customer in storage.
      */
-    public function store(CustomerRequest $request)
+    public function store(ProductRequest $request)
     {
         return $this->handleAction(
             fn () => $this->service->create($request->validated()),
-            __('Customer created successfully.'),
-            __('Check for correct customer data.'),
-            'customers.index'
+            __('Product created successfully.'),
+            __('Check for correct product data.'),
+            'products.index'
         );
     }
 
     /**
      * Update the specified customer in storage.
      */
-    public function update(CustomerRequest $request, string $id)
+    public function update(ProductRequest $request, string $id)
     {
         return $this->handleAction(
             fn () => $this->service->update($id, $request->validated()),
-            __('Customer updated successfully.'),
-            __('Check for correct customer data.'),
-            'customers.index'
+            __('Product updated successfully.'),
+            __('Check for correct product data.'),
+            'products.index'
         );
     }
 
@@ -68,9 +68,9 @@ class CustomerController extends Controller
     {
         return $this->handleAction(
             fn () => $this->service->delete($id),
-            __('Customer deleted successfully.'),
-            __('Check for correct customer data.'),
-            'customers.index'
+            __('Product deleted successfully.'),
+            __('Check for correct product data.'),
+            'products.index'
         );
     }
 }

@@ -20,6 +20,10 @@ defineProps({
             <ResponsiveNavLink :href="route('customers.index')" :active="route().current('customers.index')">
                 Customers
             </ResponsiveNavLink>
+
+            <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.index')">
+                Products
+            </ResponsiveNavLink>
         </div>
 
         <!-- Responsive Settings Options -->

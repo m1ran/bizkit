@@ -9,7 +9,7 @@ import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 
 const props = defineProps({
-    customers: {
+    products: {
         type: Object,
         required: true,
     },
@@ -24,16 +24,17 @@ const props = defineProps({
 const headers = shallowRef([
     'ID',
     'Name',
-    'Email',
-    'Phone',
-    'Notes',
+    'SKU',
+    'Price',
+    'Quantity',
+    'Description',
     'Actions',
 ]);
 
 const emit = defineEmits(['open', 'history', 'delete']);
 
 const search = debounce ((value) => {
-    router.get(route('customers.index'), { q: value }, { preserveState: true, replace: true });
+    router.get(route('products.index'), { q: value }, { preserveState: true, replace: true });
 }, 500);
 
 const q = ref(props.filters.q);
@@ -48,16 +49,16 @@ watch(q, newValue => {
         <div class="py-6 px-4 max-w-7xl mx-auto">
             <div class="mb-4 flex justify-between items-center">
                 <TextInput
-                    id="customer-search"
+                    id="product-search"
                     v-model="q"
                     type="text"
                     class="block w-1/3 mt-1"
                     autofocus
-                    placeholder="Search customers..."
+                    placeholder="Search products..."
                 />
 
                 <PrimaryButton @click="$emit('open')">
-                    + Add Customer
+                    + Add Product
                 </PrimaryButton>
             </div>
 
@@ -66,31 +67,32 @@ watch(q, newValue => {
                     <THead :headers="headers" />
 
                     <tbody>
-                        <template v-if="customers.meta.total">
-                            <tr v-for="customer in customers.data" :key="customer.id" class="hover:bg-gray-100 even:bg-gray-50">
-                                <td class="px-4 py-2 border">{{ customer.id }}</td>
-                                <td class="px-4 py-2 border">{{ customer.first_name + ' ' + customer.last_name }}</td>
-                                <td class="px-4 py-2 border">{{ customer.email }}</td>
-                                <td class="px-4 py-2 border">{{ customer.phone }}</td>
-                                <td class="px-4 py-2 border">{{ customer.notes }}</td>
+                        <template v-if="products.meta.total">
+                            <tr v-for="product in products.data" :key="product.id" class="hover:bg-gray-100 even:bg-gray-50">
+                                <td class="px-4 py-2 border">{{ product.id }}</td>
+                                <td class="px-4 py-2 border">{{ product.name }}</td>
+                                <td class="px-4 py-2 border">{{ product.sku }}</td>
+                                <td class="px-4 py-2 border">{{ product.price }}</td>
+                                <td class="px-4 py-2 border">{{ product.quantity }}</td>
+                                <td class="px-4 py-2 border">{{ product.description }}</td>
                                 <td class="px-4 py-2 border">
                                     <button
                                         class="text-sm text-blue-400 underline"
-                                        @click="$emit('open', customer)"
+                                        @click="$emit('open', product)"
                                     >
                                         Edit
                                     </button>
 
                                     <button
                                         class="ml-3 text-sm text-gray-400 underline"
-                                        @click="$emit('history', customer.id)"
+                                        @click="$emit('history', product.id)"
                                     >
                                         History
                                     </button>
 
                                     <button
                                         class="cursor-pointer ml-3 text-sm text-red-500"
-                                        @click="$emit('delete', customer)"
+                                        @click="$emit('delete', product)"
                                     >
                                         Remove
                                     </button>
@@ -98,13 +100,13 @@ watch(q, newValue => {
                                 </tr>
                         </template>
                         <tr v-else>
-                            <td colspan="6" class="px-4 py-4 text-center text-gray-500">No customers found.</td>
+                            <td colspan="7" class="px-4 py-4 text-center text-gray-500">No products found.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <Pagination :links="customers.meta.links" class="mt-4" />
+            <Pagination :links="products.meta.links" class="mt-4" />
         </div>
     </div>
 </template>

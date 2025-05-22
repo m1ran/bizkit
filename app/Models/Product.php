@@ -6,38 +6,32 @@ use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Customer extends Model
+class Product extends Model
 {
     use Auditable;
     use SoftDeletes;
 
     protected $fillable = [
         'team_id',
-        'first_name',
-        'last_name',
-        'patronymic_name',
-        'email',
-        'phone',
-        'address',
-        'city',
-        'state_id',
-        'zip',
-        'notes',
-        'created_by',
-        'updated_by',
+        'name',
+        'sku',
+        'description',
+        'price',
+        'quantity',
     ];
 
     protected $casts = [
         'team_id' => 'integer',
-        'state_id' => 'integer',
+        'price' => 'decimal:2',
+        'quantity' => 'integer',
         'deleted_at' => 'datetime',
     ];
 
     protected $auditable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
+        'name',
+        'sku',
+        'price',
+        'quantity',
     ];
 
     public function team()
@@ -45,8 +39,8 @@ class Customer extends Model
         return $this->belongsTo(Team::class);
     }
 
-    public function state()
+    public function category()
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(Category::class);
     }
 }

@@ -1,7 +1,8 @@
 <script setup>
 import { computed, onMounted, shallowRef } from 'vue';
-import DialogModal from './DialogModal.vue';
-import SecondaryButton from './SecondaryButton.vue';
+import DialogModal from '../DialogModal.vue';
+import SecondaryButton from '../SecondaryButton.vue';
+import { firstToUpper } from '@/helpers';
 
 const show = shallowRef(false);
 const history = shallowRef([]);
@@ -26,7 +27,7 @@ const title = computed(() => {
 });
 
 const capitalized = computed(() => {
-    return props.entity.charAt(0).toUpperCase() + props.entity.slice(1)
+    return firstToUpper(props.entity);
 });
 
 const close = () => {

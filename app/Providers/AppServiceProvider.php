@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Factories\RepositoryFactory;
 use App\Factories\EntityServiceFactory;
 use App\Models\Customer;
+use App\Models\Product;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\AuditableObserver;
 
@@ -25,5 +26,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Customer::observe(AuditableObserver::class);
+        Product::observe(AuditableObserver::class);
     }
 }

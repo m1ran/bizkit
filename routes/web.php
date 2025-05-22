@@ -1,32 +1,42 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProductController;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Home/Show', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('home');
+Route::middleware('throttle:60,1')
+    ->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('Home/Show', [
+                'canLogin' => Route::has('login'),
+                'canRegister' => Route::has('register'),
+            ]);
+        })->name('home');
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard/Show');
-    })->name('dashboard');
+        Route::middleware([
+            'auth:sanctum',
+            'verified',
+            config('jetstream.auth_session'),
+        ])->group(function () {
+            Route::get('/dashboard', fn () => Inertia::render('Dashboard/Show'))->name('dashboard');
 
-    // Route::group(function () {
+            Route::prefix('customers')
+                ->name('customers.')
+                ->group(function () {
+                    Route::get('/', [CustomerController::class, 'index'])->name('index');
+                    Route::post('/', [CustomerController::class, 'store'])->name('store');
+                    Route::post('/{id}', [CustomerController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('delete');
+                });
 
-    // });
-
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-    Route::post('/customers/{id}', [CustomerController::class, 'update'])->name('customers.update');
-    Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->name('customers.delete');
-});
+            Route::prefix('products')
+                ->name('products.')
+                ->group(function () {
+                    Route::get('/', [ProductController::class, 'index'])->name('index');
+                    Route::post('/', [ProductController::class, 'store'])->name('store');
+                    Route::post('/{id}', [ProductController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [ProductController::class, 'destroy'])->name('delete');
+                });
+        });
+    });
