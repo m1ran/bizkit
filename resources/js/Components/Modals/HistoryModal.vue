@@ -43,7 +43,7 @@ const hasChanged = (i, key) => {
 
 onMounted(async () => {
     try {
-        const { data } = await router.get(`/api/history/${props.entity}/${props.id}`)
+        const { data } = await axios.get(`/api/history/${props.entity}/${props.id}`)
         history.value = data.history;
         show.value = true;
     } catch (e) {

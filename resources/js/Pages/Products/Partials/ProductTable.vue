@@ -31,10 +31,12 @@ const headers = shallowRef([
     'Actions',
 ]);
 
+const queryOptions = { preserveState: true, replace: true, only: ['products'] };
+
 const emit = defineEmits(['open', 'history', 'delete']);
 
 const search = debounce ((value) => {
-    router.get(route('products.index'), { q: value }, { preserveState: true, replace: true });
+    router.get(route('products.index'), { q: value }, queryOptions);
 }, 500);
 
 const q = ref(props.filters.q);
