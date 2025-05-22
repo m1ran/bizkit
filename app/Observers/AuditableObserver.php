@@ -32,7 +32,7 @@ class AuditableObserver
         Audit::create([
             'user_id' => Auth::id(),
             'auditable_id' => $m->getKey(),
-            'auditable_entity' => class_basename($m),
+            'auditable_type' => $m->getMorphClass(),
             'event' => $event,
             'data' => $data,
         ]);

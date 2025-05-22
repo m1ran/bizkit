@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Audit;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Auditable
 {
@@ -17,10 +17,9 @@ trait Auditable
             : array_keys($this->getAttributes());
     }
 
-    public function audits(): HasMany
+    public function audits(): MorphMany
     {
-        return $this->hasMany(Audit::class, 'auditable_id')
-            ->where('auditable_entity', class_basename($this));
+        return $this->morphMany(Audit::class, 'auditable');
     }
 
     public function getAudits()

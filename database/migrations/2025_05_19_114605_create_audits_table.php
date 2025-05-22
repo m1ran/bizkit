@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedBigInteger('auditable_id');
-            $table->string('auditable_entity');
+            $table->string('auditable_type');
             $table->string('event');
             $table->json('data')->nullable();
             $table->timestamps();

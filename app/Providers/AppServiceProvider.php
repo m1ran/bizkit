@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\AuditableObserver;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(RepositoryFactory::class);
         $this->app->singleton(EntityServiceFactory::class);
+
+        Relation::morphMap([
+            'product' => Product::class,
+            'customer' => Customer::class,
+        ]);
     }
 
     /**

@@ -22,7 +22,6 @@ class HistoryController extends Controller
             return response()->json(compact('id', 'entity', 'history'));
         } catch (Throwable $e) {
             Log::error("API HistoryController@show error for entity [{$entity}] id [{$id}]: {$e->getMessage()}", [
-                'exception' => $e,
                 'entity'    => $entity,
                 'id'        => $id,
             ]);
