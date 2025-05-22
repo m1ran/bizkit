@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 import { defineProps, watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Pagination from '@/Components/Pagination.vue';
