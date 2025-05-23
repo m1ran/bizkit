@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RegionSeeder::class,
             StateSeeder::class,
+            OrderStatusSeeder::class,
         ]);
     }
 }
