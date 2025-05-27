@@ -2,16 +2,18 @@
 
 namespace App\Factories;
 
-use App\Contracts\TeamScopedRepositoryInterface;
+use InvalidArgumentException;
+use App\Repositories\OrderRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\ProductRepository;
-use InvalidArgumentException;
+use App\Contracts\TeamScopedRepositoryInterface;
 
 class RepositoryFactory
 {
     protected array $map = [
-        'product' => ProductRepository::class,
-        'customer' => CustomerRepository::class
+        'order'    => OrderRepository::class,
+        'product'  => ProductRepository::class,
+        'customer' => CustomerRepository::class,
     ];
 
     public function make(string $key): TeamScopedRepositoryInterface

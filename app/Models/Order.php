@@ -10,20 +10,29 @@ class Order extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'order_number',
         'team_id',
         'customer_id',
         'status_id',
         'total_cost',
         'total_price',
+        'notes',
     ];
 
     protected $casts = [
-        'team_id' => 'integer',
-        'status_id' => 'integer',
+        'team_id'     => 'integer',
+        'status_id'   => 'integer',
         'customer_id' => 'integer',
-        'total_cost' => 'decimal:2',
+        'total_cost'  => 'decimal:2',
         'total_price' => 'decimal:2',
-        'deleted_at' => 'datetime',
+        'deleted_at'  => 'datetime',
+    ];
+
+    protected $auditable = [
+        'status_id',
+        'total_cost',
+        'total_price',
+        'notes',
     ];
 
     public function team()

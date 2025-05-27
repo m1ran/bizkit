@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Factories\RepositoryFactory;
 use App\Contracts\EntityServiceInterface;
 use App\Repositories\ProductRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductService implements EntityServiceInterface
@@ -22,7 +23,17 @@ class ProductService implements EntityServiceInterface
         $this->teamId = auth()->user()->current_team_id;
     }
 
-    public function list(array $filters, int $perPage = 10): LengthAwarePaginator
+    public function find(int $id): Product
+    {
+        return $this->repo->findByTeam($this->teamId, $id);
+    }
+
+    public function list(array $filters, int $limit = 10): Collection
+    {
+        return $this->repo->getByTeam($this->teamId, $filters, $limit);
+    }
+
+    public function listPaginated(array $filters, int $perPage = 10): LengthAwarePaginator
     {
         return $this->repo->getByTeamPaginated($this->teamId, $filters, $perPage);
     }

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Factories\RepositoryFactory;
 use App\Factories\EntityServiceFactory;
 use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\AuditableObserver;
@@ -21,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EntityServiceFactory::class);
 
         Relation::morphMap([
-            'product' => Product::class,
+            'order'    => Order::class,
+            'product'  => Product::class,
             'customer' => Customer::class,
         ]);
     }
@@ -31,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Customer::observe(AuditableObserver::class);
+        Order::observe(AuditableObserver::class);
         Product::observe(AuditableObserver::class);
+        Customer::observe(AuditableObserver::class);
     }
 }
