@@ -4,7 +4,6 @@ namespace App\Rules;
 
 use Closure;
 use App\Services\ProductService;
-use App\Factories\EntityServiceFactory;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
@@ -17,13 +16,11 @@ class ProductHasStock implements DataAwareRule, ValidationRule
      * @var array<string, mixed>
      */
     protected array $data = [];
-
-    // protected array $products;
     private ProductService $service;
 
-    public function __construct(EntityServiceFactory $factory)
+    public function __construct(ProductService $service)
     {
-        $this->service = $factory->make('product');
+        $this->service = $service;
     }
 
     /**
