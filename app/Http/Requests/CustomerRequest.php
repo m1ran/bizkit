@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\CustomerValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CustomerRequest extends FormRequest
 {
+    use CustomerValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -21,56 +24,36 @@ class CustomerRequest extends FormRequest
      */
     public function rules(): array
     {
+        $customerRules = $this->getCustomerRules();
+
         return [
-            'first_name'      => ['required', 'string', 'min:2', 'max:255'],
-            'last_name'       => ['required', 'string', 'min:2', 'max:255'],
-            'patronymic_name' => ['nullable', 'string', 'min:2', 'max:255'],
-            'email'           => ['nullable', 'email:rfc,dns', 'max:255'],
-            'phone'           => ['nullable', 'string', 'max:20', 'regex:/^\+[1-9]\d{7,14}$/'],
-            'address'         => ['nullable', 'string', 'max:255'],
-            'city'            => ['nullable', 'string', 'max:255'],
-            'state_id'        => ['nullable', 'exists:states,id'],
-            'zip'             => ['nullable', 'string', 'max:20'],
-            'notes'           => ['nullable', 'string', 'max:1000'],
+            ...$customerRules,
+            'notes' => ['nullable', 'string', 'min:2', 'max:1000'],
         ];
     }
 
     public function attributes(): array
     {
+        $customerAttributes = $this->getCustomerAttributes();
+
         return [
-            'first_name'      => __('First Name'),
-            'last_name'       => __('Last Name'),
-            'patronymic_name' => __('Patronymic Name'),
-            'email'           => __('Email'),
-            'phone'           => __('Phone'),
-            'address'         => __('Address'),
-            'city'            => __('City'),
-            'state_id'        => __('State'),
-            'zip'             => __('ZIP Code'),
+            ...$customerAttributes,
             'notes'           => __('Notes'),
         ];
     }
 
     public function messages(): array
     {
-        return [
-            'email.email' => __('The Email must be a valid email address.'),
-            'phone.regex' => __('The Phone format is invalid.'),
-        ];
+        return $this->getCustomerMessages();
     }
 
     public function prepareForValidation()
     {
+        $preparedFields = $this->prepareCustomerFields();
+
         $this->merge([
-            'first_name'      => trim($this->first_name),
-            'last_name'       => trim($this->last_name),
-            'patronymic_name' => trim($this->patronymic_name),
-            'email'           => trim($this->email),
-            'phone'           => trim($this->phone),
-            'address'         => trim($this->address),
-            'city'            => trim($this->city),
-            'zip'             => trim($this->zip),
-            'notes'           => trim($this->notes),
+            ...$preparedFields,
+            'notes' => trim($this->notes),
         ]);
     }
 }
