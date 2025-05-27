@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Contracts\TeamScopedRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -89,9 +88,7 @@ class OrderRepository implements TeamScopedRepositoryInterface
      */
     public function createForTeam(int $teamId, array $data): Order
     {
-        return DB::transaction(function () use ($teamId, $data) {
-            return Order::create(array_merge($data, ['team_id' => $teamId]));
-        });
+        return Order::create(array_merge($data, ['team_id' => $teamId]));
     }
 
     /**
@@ -104,12 +101,10 @@ class OrderRepository implements TeamScopedRepositoryInterface
      */
     public function updateForTeam(int $teamId, int $id, array $data): Order
     {
-        return DB::transaction(function () use ($teamId, $id, $data) {
-            $order = Order::where('team_id', $teamId)->findOrFail($id);
-            $order->update($data);
+        $order = Order::where('team_id', $teamId)->findOrFail($id);
+        $order->update($data);
 
-            return $order;
-        });
+        return $order;
     }
 
     /**
@@ -121,10 +116,8 @@ class OrderRepository implements TeamScopedRepositoryInterface
      */
     public function deleteForTeam(int $teamId, int $id): bool
     {
-        return DB::transaction(function () use ($teamId, $id) {
-            $order = Order::where('team_id', $teamId)->findOrFail($id);
+        $order = Order::where('team_id', $teamId)->findOrFail($id);
 
-            return $order->delete();
-        });
+        return $order->delete();
     }
 }
