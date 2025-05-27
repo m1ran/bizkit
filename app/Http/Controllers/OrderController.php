@@ -44,8 +44,8 @@ class OrderController extends Controller
         return $this->handleAction(
             fn () => $this->service->create($request->validated()),
             __('Order created successfully.'),
-            __('Check for correct product data.'),
-            'products.index'
+            __('Check for correct order data.'),
+            'orders.index'
         );
     }
 
@@ -57,8 +57,8 @@ class OrderController extends Controller
         return $this->handleAction(
             fn () => $this->service->update($id, $request->validated()),
             __('Order updated successfully.'),
-            __('Check for correct product data.'),
-            'products.index'
+            __('Check for correct order data.'),
+            'orders.index'
         );
     }
 
@@ -70,8 +70,8 @@ class OrderController extends Controller
         return $this->handleAction(
             fn () => $this->service->delete($id),
             __('Order deleted successfully.'),
-            __('Check for correct product data.'),
-            'products.index'
+            __('Check for order product data.'),
+            'orders.index'
         );
     }
 }

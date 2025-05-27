@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Factories\EntityServiceFactory;
 use App\Rules\ProductHasStock;
+use App\Services\ProductService;
 use App\Traits\CustomerValidation;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -55,7 +55,7 @@ class StoreOrderRequest extends FormRequest
                 'required',
                 'integer',
                 'min:1',
-                new ProductHasStock(app(EntityServiceFactory::class)),
+                new ProductHasStock(app(ProductService::class)),
             ],
         ];
     }
