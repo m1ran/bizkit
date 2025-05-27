@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table
-                ->string('order_number')
+                ->string('num')
                 ->unique()
                 ->comment('Unique identifier for the order: A{team}{sequence:8}')
                 ->after('id');
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('order_number');
+            $table->dropColumn('num');
         });
     }
 };

@@ -4,12 +4,19 @@ namespace App\Repositories;
 
 use App\Contracts\TeamScopedRepositoryInterface;
 use App\Models\Customer;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CustomerRepository implements TeamScopedRepositoryInterface
 {
+    /**
+     * Get customers for a specific team with optional filters.
+     *
+     * @param int $teamId
+     * @param array $filters
+     * @param int $limit
+     * @return Collection
+     */
     public function getByTeam(int $teamId, array $filters = [], int $limit = 10): Collection
     {
         return Customer::query()
@@ -32,6 +39,14 @@ class CustomerRepository implements TeamScopedRepositoryInterface
             ->get();
     }
 
+    /**
+     * Get paginated customers for a specific team with optional filters.
+     *
+     * @param int $teamId
+     * @param array $filters
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
     public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Customer::query()
@@ -60,34 +75,57 @@ class CustomerRepository implements TeamScopedRepositoryInterface
             ->onEachSide(1);
     }
 
+    /**
+     * Find a customer by ID for a specific team.
+     *
+     * @param int $teamId
+     * @param int $id
+     * @return Customer
+     */
     public function findByTeam(int $teamId, int $id): Customer
     {
         return Customer::where('team_id', $teamId)->find($id);
     }
 
+    /**
+     * Create a new customer for a specific team.
+     *
+     * @param int $teamId
+     * @param array $data
+     * @return Customer
+     */
     public function createForTeam(int $teamId, array $data): Customer
     {
-        return DB::transaction(function () use ($teamId, $data) {
-            return Customer::create(array_merge($data, ['team_id' => $teamId]));
-        });
+        return Customer::create(array_merge($data, ['team_id' => $teamId]));
     }
 
+    /**
+     * Update an existing customer for a specific team.
+     *
+     * @param int $teamId
+     * @param int $id
+     * @param array $data
+     * @return Customer
+     */
     public function updateForTeam(int $teamId, int $id, array $data): Customer
     {
-        return DB::transaction(function () use ($teamId, $id, $data) {
-            $customer = Customer::where('team_id', $teamId)->findOrFail($id);
-            $customer->update($data);
+        $customer = Customer::where('team_id', $teamId)->findOrFail($id);
+        $customer->update($data);
 
-            return $customer;
-        });
+        return $customer;
     }
 
+    /**
+     * Delete a customer for a specific team.
+     *
+     * @param int $teamId
+     * @param int $id
+     * @return bool
+     */
     public function deleteForTeam(int $teamId, int $id): bool
     {
-        return DB::transaction(function () use ($teamId, $id) {
-            $customer = Customer::where('team_id', $teamId)->findOrFail($id);
+        $customer = Customer::where('team_id', $teamId)->findOrFail($id);
 
-            return $customer->delete();
-        });
+        return $customer->delete();
     }
 }
