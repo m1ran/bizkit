@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Inertia\Inertia;
 
@@ -37,6 +38,15 @@ Route::middleware('throttle:60,1')
                     Route::post('/', [ProductController::class, 'store'])->name('store');
                     Route::post('/{id}', [ProductController::class, 'update'])->name('update');
                     Route::delete('/{id}', [ProductController::class, 'destroy'])->name('delete');
+                });
+
+            Route::prefix('orders')
+                ->name('orders.')
+                ->group(function () {
+                    Route::get('/', [OrderController::class, 'index'])->name('index');
+                    Route::post('/', [OrderController::class, 'store'])->name('store');
+                    Route::post('/{id}', [OrderController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [OrderController::class, 'destroy'])->name('delete');
                 });
         });
     });

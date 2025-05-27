@@ -2,15 +2,17 @@
 
 namespace App\Factories;
 
-use App\Contracts\EntityServiceInterface;
-use App\Services\CustomerService;
-use App\Services\ProductService;
 use InvalidArgumentException;
+use App\Services\OrderService;
+use App\Services\ProductService;
+use App\Services\CustomerService;
+use App\Contracts\EntityServiceInterface;
 
 class EntityServiceFactory
 {
     protected array $map = [
-        'product' => ProductService::class,
+        'order'    => OrderService::class,
+        'product'  => ProductService::class,
         'customer' => CustomerService::class,
     ];
 

@@ -27,11 +27,11 @@ class ProductController extends Controller
     {
         $filters = request()->only(['q']);
 
-        $products = $this->service->list($filters);
+        $products = $this->service->listPaginated($filters);
 
         return Inertia::render('Products/Index', [
             'products' => ProductResource::collection($products),
-            'filters' => request()->only(['q']),
+            'filters' => $filters,
         ]);
     }
 

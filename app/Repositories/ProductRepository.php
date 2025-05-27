@@ -4,11 +4,39 @@ namespace App\Repositories;
 
 use App\Contracts\TeamScopedRepositoryInterface;
 use App\Models\Product;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductRepository implements TeamScopedRepositoryInterface
 {
+    public function getByTeam(int $teamId, array $filters = [], $limit = 10): Collection
+    {
+        return Product::query()
+            ->select([
+                'id',
+                'name',
+                'sku',
+                'price',
+                'quantity',
+            ])
+            ->orderBy('name')
+            ->where('team_id', $teamId)
+            // limit products by IDs if provided
+            ->when(!empty($filters['ids']), function ($query) use ($filters) {
+                $query->whereIn('id', $filters['ids']);
+            })
+            // exclude products by IDs if provided
+            ->when(!empty($filters['exclude']), function ($query) use ($filters) {
+                $query->whereNotIn('id', $filters['exclude']);
+            })
+            ->when(!empty($filters['q']), function ($query) use ($filters) {
+                $query->where('name', 'like', "%{$filters['q']}%")
+                    ->orWhere('sku', 'like', "%{$filters['q']}%");
+            })
+            ->get();
+    }
+
     public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Product::query()
@@ -23,8 +51,11 @@ class ProductRepository implements TeamScopedRepositoryInterface
             ->latest()
             ->where('team_id', $teamId)
             ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('name', 'like', "%{$filters['q']}%")
-                    ->orWhere('sku', 'like', "%{$filters['q']}%");
+                $q = $filters['q'];
+                $query->where(function ($query) use ($q) {
+                    $query->where('name', 'like', "%{$q}%")
+                        ->orWhere('sku', 'like', "%{$q}%");
+                });
             })
             ->paginate($perPage)
             ->withQueryString()
@@ -33,7 +64,7 @@ class ProductRepository implements TeamScopedRepositoryInterface
 
     public function findByTeam(int $teamId, int $id): Product
     {
-        return Product::where('team_id', $teamId)->findOrFail($id);
+        return Product::where('team_id', $teamId)->find($id);
     }
 
     public function createForTeam(int $teamId, array $data): Product

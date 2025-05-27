@@ -3,11 +3,14 @@
 namespace App\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface TeamScopedRepositoryInterface
 {
-    public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage = 10): LengthAwarePaginator;
+    public function getByTeam(int $teamId, array $filters = [], int $limit): Collection;
+
+    public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage): LengthAwarePaginator;
 
     public function findByTeam(int $teamId, int $id): Model;
 

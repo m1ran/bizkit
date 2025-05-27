@@ -2,28 +2,28 @@
 
 namespace App\Services;
 
-use App\Models\Customer;
+use App\Models\Order;
 use App\Factories\RepositoryFactory;
-use App\Repositories\CustomerRepository;
 use App\Contracts\EntityServiceInterface;
+use App\Repositories\OrderRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class CustomerService implements EntityServiceInterface
+class OrderService implements EntityServiceInterface
 {
     private int $teamId;
-    private CustomerRepository $repo;
+    private OrderRepository $repo;
 
     /**
      * Create a new class entity.
      */
     public function __construct(RepositoryFactory $factory)
     {
-        $this->repo = $factory->make('customer');
+        $this->repo = $factory->make('order');
         $this->teamId = auth()->user()->current_team_id;
     }
 
-    public function find(int $id): Customer
+    public function find(int $id): Order
     {
         return $this->repo->findByTeam($this->teamId, $id);
     }
@@ -38,12 +38,12 @@ class CustomerService implements EntityServiceInterface
         return $this->repo->getByTeamPaginated($this->teamId, $filters, $perPage);
     }
 
-    public function create(array $data): Customer
+    public function create(array $data): Order
     {
         return $this->repo->createForTeam($this->teamId, $data);
     }
 
-    public function update(int $id, array $data): Customer
+    public function update(int $id, array $data): Order
     {
         return $this->repo->updateForTeam($this->teamId, $id, $data);
     }
