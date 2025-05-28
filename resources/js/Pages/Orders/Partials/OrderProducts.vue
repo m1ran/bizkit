@@ -35,7 +35,15 @@ function onProductSelect(idx, p) {
 }
 
 function addItem() {
-    props.form.items.push({ product: null, product_id: null, quantity: 1, unit_price: 0, line_total: 0 });
+    props.form.items.push({
+        product: null,
+        product_id: null,
+        quantity: 1,
+        unit_cost: 0,
+        line_cost: 0,
+        unit_price: 0,
+        line_price: 0,
+    });
 }
 
 function removeItem(idx) {
@@ -48,10 +56,11 @@ function updateLineTotal(idx) {
     if (item.product && item.quantity > item.product.quantity) {
         item.quantity = item.product.quantity;
     }
-    item.line_total = item.quantity * item.unit_price;
+    item.line_cost = item.quantity * item.unit_cost;
+    item.line_price = item.quantity * item.unit_price;
 }
 
-const orderTotal = computed(() => props.form.items.reduce((sum, i) => sum + i.line_total, 0));
+const orderTotal = computed(() => props.form.items.reduce((sum, i) => sum + i.line_price, 0));
 
 function formatCurrency(val) {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(val);
@@ -68,7 +77,7 @@ function formatCurrency(val) {
                     <th class="px-4 py-2 text-left">Product</th>
                     <th class="px-4 py-2 text-center">Qty</th>
                     <th class="px-4 py-2 text-right">Unit Price</th>
-                    <th class="px-4 py-2 text-right">Line Total</th>
+                    <th class="px-4 py-2 text-right">Sub Total</th>
                     <th class="px-4 py-2"></th>
                 </tr>
                 </thead>
@@ -99,7 +108,7 @@ function formatCurrency(val) {
                     {{ formatCurrency(item.unit_price) }}
                     </td>
                     <td class="px-4 py-2 text-right">
-                    {{ formatCurrency(item.line_total) }}
+                    {{ formatCurrency(item.line_price) }}
                     </td>
                     <td class="px-4 py-2 text-center">
                     <button type="button" @click="removeItem(idx)" class="text-red-500">

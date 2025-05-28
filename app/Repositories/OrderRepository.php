@@ -2,10 +2,12 @@
 
 namespace App\Repositories;
 
+use Carbon\Carbon;
 use App\Models\Order;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Contracts\TeamScopedRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 
 class OrderRepository implements TeamScopedRepositoryInterface
 {
@@ -22,16 +24,17 @@ class OrderRepository implements TeamScopedRepositoryInterface
         return Order::query()
             ->select([
                 'id',
-                'order_number',
+                'num',
+                'status_id',
                 'customer_id',
                 'status_id',
                 'total_cost',
                 'total_price',
             ])
-            ->orderBy('order_number')
+            ->orderBy('num')
             ->where('team_id', $teamId)
             ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('order_number', 'like', "%{$filters['q']}%");
+                $query->where('num', 'like', "%{$filters['q']}%");
             })
             ->get();
     }
@@ -49,7 +52,8 @@ class OrderRepository implements TeamScopedRepositoryInterface
         return Order::query()
             ->select([
                 'id',
-                'order_number',
+                'num',
+                'status_id',
                 'customer_id',
                 'status_id',
                 'total_cost',
@@ -60,7 +64,7 @@ class OrderRepository implements TeamScopedRepositoryInterface
             ->latest()
             ->where('team_id', $teamId)
             ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('order_number', 'like', "%{$filters['q']}%");
+                $query->where('num', 'like', "%{$filters['q']}%");
             })
             ->paginate($perPage)
             ->withQueryString()
@@ -119,5 +123,37 @@ class OrderRepository implements TeamScopedRepositoryInterface
         $order = Order::where('team_id', $teamId)->findOrFail($id);
 
         return $order->delete();
+    }
+
+    /**
+     * Get the next order number for a specific team.
+     *
+     * The order number format is:
+     * - Letter based on the year (A for 2025, B for 2026, etc.)
+     * - Padded team ID (3 digits)
+     * - Sequence number padded to 6 digits
+     *
+     * @param int $teamId
+     * @return string
+     */
+    public function getNextOrderNumber(int $teamId): string
+    {
+        $year       = Carbon::now()->year;
+        $yearOffset = $year - env('APP_LAUNCH_YEAR', 2025); // 0 - 2025, 1 - 2026, ...
+        $letter     = chr(ord('A') + $yearOffset);
+          // Prefix: letter + pad teamId to 3 digits
+        $prefix = $letter . Str::padLeft($teamId, 3, '0');
+          // Get max num for this team with the same prefix
+        $lastNum = Order::withTrashed()
+            ->where('team_id', $teamId)
+            ->where('num', 'like', "$prefix%")
+            ->max('num');
+          // Get num after the prefix
+        $lastSeq = $lastNum ? (int) substr($lastNum, 4) : 0;
+        $nextSeq = $lastSeq + 1;
+          // Pad the sequence number to 6 digits
+        $seqPadded = Str::padLeft($nextSeq, 6, '0');
+
+        return $prefix . $seqPadded;
     }
 }

@@ -19,11 +19,14 @@ const props = defineProps({
         type: Number,
         required: true,
         validator: value => Number.isInteger(value),
-    }
+    },
+    num: {
+        type: String,
+    },
 });
 
 const title = computed(() => {
-    return `${capitalized.value} #${props.id} history`;
+    return `${capitalized.value} #${(props.num || props.id)} history`;
 });
 
 const capitalized = computed(() => {

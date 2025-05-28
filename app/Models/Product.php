@@ -16,12 +16,14 @@ class Product extends Model
         'name',
         'sku',
         'description',
+        'cost',
         'price',
         'quantity',
     ];
 
     protected $casts = [
         'team_id' => 'integer',
+        'cost' => 'decimal:2',
         'price' => 'decimal:2',
         'quantity' => 'integer',
         'deleted_at' => 'datetime',
@@ -30,8 +32,10 @@ class Product extends Model
     protected $auditable = [
         'name',
         'sku',
+        'cost',
         'price',
         'quantity',
+        'description',
     ];
 
     public function team()

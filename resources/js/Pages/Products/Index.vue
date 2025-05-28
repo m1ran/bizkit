@@ -50,8 +50,8 @@ const onOpenProductFormModal = (data = null) => {
     showFormModal.value = true;
 };
 
-const onShowProductHistory = (id) => {
-    productId.value = id;
+const onShowProductHistory = (data) => {
+    productId.value = data.id;
 }
 
 const onConfirmProductModal = (data) => {
