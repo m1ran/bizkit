@@ -72,7 +72,7 @@ watch(q, newValue => {
                     <tbody>
                         <template v-if="orders.meta.total">
                             <tr v-for="order in orders.data" :key="order.id" class="hover:bg-gray-100 even:bg-gray-50">
-                                <td class="px-4 py-2 border">{{ order.order_number }}</td>
+                                <td class="px-4 py-2 border">{{ order.num }}</td>
                                 <td class="px-4 py-2 border">{{ order.customer_id }}</td>
                                 <td class="px-4 py-2 border">{{ order.status_id }}</td>
                                 <td class="px-4 py-2 border">{{ order.total_cost }}</td>
@@ -89,7 +89,7 @@ watch(q, newValue => {
 
                                     <button
                                         class="ml-3 text-sm text-gray-400 underline"
-                                        @click="$emit('history', order.id)"
+                                        @click="$emit('history', order)"
                                     >
                                         History
                                     </button>

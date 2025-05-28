@@ -28,29 +28,33 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         $teamId = $this->user()->current_team_id;
-
         $customerRules = $this->getCustomerRules();
 
         return [
             ...$customerRules,
+            // order‐specific fields:
             'notes' => ['nullable', 'string', 'min:2', 'max:1000'],
-              // order‐specific fields:
             'customer_id' => [
                 'nullable',
                 'integer',
                 Rule::exists('customers', 'id')
                     ->where('team_id', $teamId),
             ],
-               // items: must be a non‐empty array
+            'customer_action' => [
+                'nullable',
+                'string',
+                Rule::in(['keep', 'create', 'update']),
+            ],
+            // items: must be a non‐empty array
             'items' => ['required', 'array', 'min:1'],
-              // each item must refer to a real product
+            // each item must refer to a real product
             'items.*.product_id' => [
                 'required',
                 'integer',
                 Rule::exists('products', 'id')
                     ->where('team_id', $teamId),
             ],
-              // and have at least 1 unit and be in stock
+            // and have at least 1 unit and be in stock
             'items.*.quantity' => [
                 'required',
                 'integer',
@@ -91,7 +95,7 @@ class StoreOrderRequest extends FormRequest
 
         $this->merge([
             ...$preparedFields,
-            'notes'           => trim($this->notes),
+            'notes' => trim($this->notes),
         ]);
     }
 }

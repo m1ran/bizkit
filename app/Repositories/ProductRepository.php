@@ -24,6 +24,7 @@ class ProductRepository implements TeamScopedRepositoryInterface
                 'id',
                 'name',
                 'sku',
+                'cost',
                 'price',
                 'quantity',
             ])
@@ -59,6 +60,7 @@ class ProductRepository implements TeamScopedRepositoryInterface
                 'id',
                 'name',
                 'sku',
+                'cost',
                 'price',
                 'quantity',
                 'description',

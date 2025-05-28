@@ -51,8 +51,8 @@ const onOpenCustomerFormModal = (data = null) => {
     showFormModal.value = true;
 };
 
-const onShowCustomerHistory = (id) => {
-    customerId.value = id;
+const onShowCustomerHistory = (data) => {
+    customerId.value = data.id;
 }
 
 const onConfirmCustomerModal = (data) => {

@@ -54,6 +54,7 @@ const formTitle = computed(() => {
 
 const order = ref(null);
 const orderId = shallowRef(0);
+const orderNum = shallowRef(null);
 const showFormModal = shallowRef(false);
 const showConfirmationModal = shallowRef(false);
 const showApplyChangesModal = shallowRef(false);
@@ -73,8 +74,9 @@ const onOpenOrderFormModal = (data = null) => {
     showFormModal.value = true;
 };
 
-const onShowOrderHistory = (id) => {
-    orderId.value = id;
+const onShowOrderHistory = (data) => {
+    orderId.value = data.id;
+    orderNum.value = data.num;
 }
 
 const onConfirmOrderModal = (data) => {
@@ -148,6 +150,7 @@ const deleteOrder = () => {
             <HistoryModal v-if="orderId"
                 entity="order"
                 :id="orderId"
+                :num="orderNum"
                 @close="closeModals"
             />
 

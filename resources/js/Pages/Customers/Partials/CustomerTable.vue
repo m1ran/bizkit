@@ -85,7 +85,7 @@ watch(q, newValue => {
 
                                     <button
                                         class="ml-3 text-sm text-gray-400 underline"
-                                        @click="$emit('history', customer.id)"
+                                        @click="$emit('history', customer)"
                                     >
                                         History
                                     </button>
