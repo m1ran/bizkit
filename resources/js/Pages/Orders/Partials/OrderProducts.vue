@@ -30,7 +30,6 @@ function onProductSelect(idx, p) {
     const item = props.form.items[idx];
     item.product_id = p.id;
     item.unit_price = p.price;
-    // item.limit = p.quantity;
     updateLineTotal(idx);
 }
 
@@ -39,8 +38,6 @@ function addItem() {
         product: null,
         product_id: null,
         quantity: 1,
-        unit_cost: 0,
-        line_cost: 0,
         unit_price: 0,
         line_price: 0,
     });
@@ -56,7 +53,6 @@ function updateLineTotal(idx) {
     if (item.product && item.quantity > item.product.quantity) {
         item.quantity = item.product.quantity;
     }
-    item.line_cost = item.quantity * item.unit_cost;
     item.line_price = item.quantity * item.unit_price;
 }
 
