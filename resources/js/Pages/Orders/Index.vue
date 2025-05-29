@@ -10,8 +10,11 @@ import HistoryModal from '@/Components/Modals/HistoryModal.vue';
 import DestroyModal from '@/Components/Modals/DestroyModal.vue';
 import ApplyChangesModal from '@/Pages/Orders/Partials/ApplyChangesModal.vue';
 
-defineProps({
+const props = defineProps({
     orders: {
+        type: Object
+    },
+    statuses: {
         type: Object
     },
     filters: {
@@ -142,6 +145,7 @@ const deleteOrder = () => {
                 @history="onShowOrderHistory"
                 @delete="onConfirmOrderModal"
                 :orders="orders"
+                :statuses="statuses.data"
                 :filters="filters"
             />
 

@@ -293,6 +293,18 @@ class OrderService implements EntityServiceInterface
     }
 
     /**
+     * Get the list of order statuses.
+     *
+     * @return Collection
+     */
+    public function getStatuses(): Collection
+    {
+        return OrderStatus::select(['id', 'name', 'label', 'sort_order'])
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    /**
      * Get the default status ID for orders.
      *
      * @return int

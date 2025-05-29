@@ -7,6 +7,7 @@ use App\Factories\EntityServiceFactory;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderStatusResource;
 use App\Services\OrderService;
 use App\Traits\HandleCrudActions;
 
@@ -29,10 +30,12 @@ class OrderController extends Controller
         $filters = request()->only(['q']);
 
         $products = $this->service->listPaginated($filters);
+        $statuses = $this->service->getStatuses();
 
         return Inertia::render('Orders/Index', [
-            'orders' => OrderResource::collection($products),
             'filters' => $filters,
+            'orders' => OrderResource::collection($products),
+            'statuses' => OrderStatusResource::collection($statuses),
         ]);
     }
 

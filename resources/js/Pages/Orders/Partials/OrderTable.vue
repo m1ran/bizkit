@@ -7,11 +7,36 @@ import TextInput from '@/Components/TextInput.vue';
 import THead from '@/Components/THead.vue';
 import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import { getItemById } from '@/helpers';
+
+const HEADERS = [
+    'Num #',
+    'Customer',
+    'Status',
+    'Total Coast',
+    'Total Price',
+    'Notes',
+    'Created',
+    'Actions',
+];
+
+const COLOR_MAP = {
+  draft    : 'bg-gray-100   text-gray-800',
+  pending  : 'bg-yellow-100 text-yellow-800',
+  paid     : 'bg-blue-100   text-blue-800',
+  shipped  : 'bg-indigo-100 text-indigo-800',
+  finished : 'bg-green-100  text-green-800',
+  cancelled: 'bg-red-100    text-red-800',
+}
 
 const props = defineProps({
     orders: {
         type: Object,
         required: true,
+    },
+    statuses: {
+        type: Array,
+        default: () => [],
     },
     filters: {
         type: Object,
@@ -20,17 +45,6 @@ const props = defineProps({
         }),
     },
 });
-
-const headers = ref([
-    '#',
-    'Customer',
-    'Status',
-    'Total Coast',
-    'Total Price',
-    'Notes',
-    'Created',
-    'Actions',
-]);
 
 const queryOptions = { preserveState: true, replace: true, only: ['orders'] };
 
@@ -41,6 +55,15 @@ const search = debounce ((value) => {
 }, 500);
 
 const q = ref(props.filters.q);
+
+const statusLabel = (statusId) => {
+    return getItemById(statusId, props.statuses, 'label');
+};
+
+const statusClasses = (statusId) => {
+    const statusName = getItemById(statusId, props.statuses, 'name');
+    return COLOR_MAP[statusName] || 'bg-gray-100 text-gray-800'
+}
 
 watch(q, newValue => {
     search(newValue);
@@ -67,18 +90,27 @@ watch(q, newValue => {
 
             <div class="bg-white shadow-sm rounded overflow-x-auto">
                 <table class="min-w-full table-auto border">
-                    <THead :headers="headers" />
+                    <THead :headers="HEADERS" />
 
                     <tbody>
                         <template v-if="orders.meta.total">
                             <tr v-for="order in orders.data" :key="order.id" class="hover:bg-gray-100 even:bg-gray-50">
                                 <td class="px-4 py-2 border">{{ order.num }}</td>
                                 <td class="px-4 py-2 border">{{ order.customer_id }}</td>
-                                <td class="px-4 py-2 border">{{ order.status_id }}</td>
+                                <td class="px-4 py-2 border">
+                                    <span
+                                        class="text-sm font-semibold px-2 py-0.5 rounded"
+                                        :class="statusClasses(order.status_id)"
+                                    >
+                                        {{ statusLabel(order.status_id) }}
+                                    </span>
+                                </td>
                                 <td class="px-4 py-2 border">{{ order.total_cost }}</td>
                                 <td class="px-4 py-2 border">{{ order.total_price }}</td>
                                 <td class="px-4 py-2 border">{{ order.notes }}</td>
-                                <td class="px-4 py-2 border">{{ order.created_at }}</td>
+                                <td class="px-4 py-2 border">
+                                    {{ $dayjs(order.created_at).tz('Europe/Kyiv').format('DD.MM.YYYY HH:mm:ss') }}
+                                </td>
                                 <td class="px-4 py-2 border">
                                     <button
                                         class="text-sm text-blue-400 underline"

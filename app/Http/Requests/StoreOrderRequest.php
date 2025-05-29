@@ -33,6 +33,7 @@ class StoreOrderRequest extends FormRequest
         return [
             ...$customerRules,
             // order‐specific fields:
+            'finished' => ['nullable', 'boolean'],
             'notes' => ['nullable', 'string', 'min:2', 'max:1000'],
             'customer_id' => [
                 'nullable',
