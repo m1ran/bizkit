@@ -10,6 +10,17 @@ import { debounce } from 'lodash';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { getItemById } from '@/helpers';
 
+const HEADERS = [
+    'SKU #',
+    'Name',
+    'Category',
+    'Cost',
+    'Price',
+    'Quantity',
+    'Description',
+    'Actions',
+];
+
 const props = defineProps({
     products: {
         type: Object,
@@ -27,17 +38,6 @@ const props = defineProps({
         }),
     },
 });
-
-const headers = ref([
-    'SKU',
-    'Name',
-    'Category',
-    'Cost',
-    'Price',
-    'Quantity',
-    'Description',
-    'Actions',
-]);
 
 const queryOptions = { preserveState: true, replace: true, only: ['products'] };
 
@@ -81,7 +81,7 @@ watch(q, newValue => {
 
             <div class="bg-white shadow-sm rounded overflow-x-auto">
                 <table class="min-w-full table-auto border">
-                    <THead :headers="headers" />
+                    <THead :headers="HEADERS" />
 
                     <tbody>
                         <template v-if="products.meta.total">

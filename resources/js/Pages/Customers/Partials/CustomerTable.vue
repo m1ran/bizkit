@@ -8,6 +8,15 @@ import THead from '@/Components/THead.vue';
 import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 
+const HEADERS = [
+    '#',
+    'Name',
+    'Email',
+    'Phone',
+    'Notes',
+    'Actions',
+];
+
 const props = defineProps({
     customers: {
         type: Object,
@@ -20,15 +29,6 @@ const props = defineProps({
         }),
     },
 });
-
-const headers = ref([
-    '#',
-    'Name',
-    'Email',
-    'Phone',
-    'Notes',
-    'Actions',
-]);
 
 const queryOptions = { preserveState: true, replace: true, only: ['customers'] };
 
@@ -65,7 +65,7 @@ watch(q, newValue => {
 
             <div class="bg-white shadow-sm rounded overflow-x-auto">
                 <table class="min-w-full table-auto border">
-                    <THead :headers="headers" />
+                    <THead :headers="HEADERS" />
 
                     <tbody>
                         <template v-if="customers.meta.total">
