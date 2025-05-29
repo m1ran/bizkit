@@ -8,6 +8,7 @@ import THead from '@/Components/THead.vue';
 import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { getItemById } from '@/helpers';
 
 const props = defineProps({
     products: {
@@ -48,11 +49,6 @@ const search = debounce ((value) => {
 
 const q = ref(props.filters.q);
 
-const getCategoryName = (id) => {
-    const category = props.categories.find(c => c.id === id);
-    return category ? category.name : '';
-};
-
 watch(q, newValue => {
     search(newValue);
 });
@@ -92,7 +88,9 @@ watch(q, newValue => {
                             <tr v-for="product in products.data" :key="product.id" class="hover:bg-gray-100 even:bg-gray-50">
                                 <td class="px-4 py-2 border">{{ product.sku }}</td>
                                 <td class="px-4 py-2 border">{{ product.name }}</td>
-                                <td class="px-4 py-2 border">{{ getCategoryName(product.category_id) }}</td>
+                                <td class="px-4 py-2 border">
+                                    {{ getItemById(product.category_id, props.categories, 'name') }}
+                                </td>
                                 <td class="px-4 py-2 border">{{ ( product.cost ?? 0) }}</td>
                                 <td class="px-4 py-2 border">{{ product.price }}</td>
                                 <td class="px-4 py-2 border">{{ product.quantity }}</td>

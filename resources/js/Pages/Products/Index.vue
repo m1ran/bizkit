@@ -9,8 +9,9 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import HistoryModal from '@/Components/Modals/HistoryModal.vue';
 import DestroyModal from '@/Components/Modals/DestroyModal.vue';
 import ProductCategoriesModal from './Partials/ProductCategoriesModal.vue';
+import { getItemById } from '@/helpers';
 
-defineProps({
+const props = defineProps({
     products: {
         type: Object
     },
@@ -29,6 +30,7 @@ const form = useForm({
     price: 0.01,
     quantity: 1,
     category_id: null,
+    category: null,
     description: '',
 });
 
@@ -49,6 +51,12 @@ const onOpenProductFormModal = (data = null) => {
         Object.entries(data).forEach(([key, val]) => {
             if (key in form) form[key] = val
         });
+        // set category record
+        if (form.category_id) {
+            form.category = getItemById(form.category_id, props.categories.data);
+        }
+
+
     } else {
         form.reset();
     }
@@ -81,6 +89,13 @@ const formOptions = {
 }
 
 const saveProduct = () => {
+    // set category_id from category object
+    if (form.category) {
+        form.category_id = form.category.id;
+    } else {
+        form.category_id = null;
+    }
+    // save product
     if (product.value) {
         form.post(route('products.update', { id: product.value.id }), formOptions);
     } else {
@@ -110,6 +125,7 @@ const deleteProduct = () => {
             <HistoryModal v-if="productId"
                 entity="product"
                 :id="productId"
+                :num="product.sku"
                 @close="closeModals"
             />
 
