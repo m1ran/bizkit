@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef } from 'vue';
+import { ref } from 'vue';
 import { defineProps, watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -7,11 +7,18 @@ import TextInput from '@/Components/TextInput.vue';
 import THead from '@/Components/THead.vue';
 import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { getItemById } from '@/helpers';
 
 const props = defineProps({
     products: {
         type: Object,
         required: true,
+    },
+    categories: {
+        type: Array,
+        required: true,
+        default: [],
     },
     filters: {
         type: Object,
@@ -21,10 +28,11 @@ const props = defineProps({
     },
 });
 
-const headers = shallowRef([
-    'ID',
-    'Name',
+const headers = ref([
     'SKU',
+    'Name',
+    'Category',
+    'Cost',
     'Price',
     'Quantity',
     'Description',
@@ -33,7 +41,7 @@ const headers = shallowRef([
 
 const queryOptions = { preserveState: true, replace: true, only: ['products'] };
 
-const emit = defineEmits(['open', 'history', 'delete']);
+const emit = defineEmits(['open', 'history', 'delete', 'open:categories']);
 
 const search = debounce ((value) => {
     router.get(route('products.index'), { q: value }, queryOptions);
@@ -59,9 +67,16 @@ watch(q, newValue => {
                     placeholder="Search products..."
                 />
 
-                <PrimaryButton @click="$emit('open')">
-                    + Add Product
-                </PrimaryButton>
+                <div class="flex">
+                    <SecondaryButton @click="$emit('open:categories')">
+                        <FontAwesomeIcon icon="th-list" class="mr-2" />
+                        Categories
+                    </SecondaryButton>
+
+                    <PrimaryButton @click="$emit('open')"  class="ml-2">
+                        +  Add Product
+                    </PrimaryButton>
+                </div>
             </div>
 
             <div class="bg-white shadow-sm rounded overflow-x-auto">
@@ -71,9 +86,12 @@ watch(q, newValue => {
                     <tbody>
                         <template v-if="products.meta.total">
                             <tr v-for="product in products.data" :key="product.id" class="hover:bg-gray-100 even:bg-gray-50">
-                                <td class="px-4 py-2 border">{{ product.id }}</td>
-                                <td class="px-4 py-2 border">{{ product.name }}</td>
                                 <td class="px-4 py-2 border">{{ product.sku }}</td>
+                                <td class="px-4 py-2 border">{{ product.name }}</td>
+                                <td class="px-4 py-2 border">
+                                    {{ getItemById(product.category_id, props.categories, 'name') }}
+                                </td>
+                                <td class="px-4 py-2 border">{{ ( product.cost ?? 0) }}</td>
                                 <td class="px-4 py-2 border">{{ product.price }}</td>
                                 <td class="px-4 py-2 border">{{ product.quantity }}</td>
                                 <td class="px-4 py-2 border">{{ product.description }}</td>
@@ -102,7 +120,7 @@ watch(q, newValue => {
                                 </tr>
                         </template>
                         <tr v-else>
-                            <td colspan="7" class="px-4 py-4 text-center text-gray-500">No products found.</td>
+                            <td colspan="8" class="px-4 py-4 text-center text-gray-500">No products found.</td>
                         </tr>
                     </tbody>
                 </table>

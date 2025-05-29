@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CustomerForm from './Partials/CustomerForm.vue';
 import CustomerTable from './Partials/CustomerTable.vue';
@@ -32,9 +32,9 @@ const formTitle = computed(() => {
 })
 
 const customer = ref(null);
-const customerId = shallowRef(0);
-const showFormModal = shallowRef(false);
-const showConfirmationModal = shallowRef(false);
+const customerId = ref(0);
+const showFormModal = ref(false);
+const showConfirmationModal = ref(false);
 
 const onOpenCustomerFormModal = (data = null) => {
     customer.value = data;

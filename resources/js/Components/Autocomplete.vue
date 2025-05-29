@@ -1,5 +1,5 @@
 <script setup>
-import { shallowRef, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { debounce } from 'lodash';
 
 /**
@@ -10,6 +10,8 @@ import { debounce } from 'lodash';
  * - placeholder: input placeholder
  * - id: optional input id
  * - customClass: optional additional classes for input
+ * - extra: array of additional fields to display in suggestions
+ * - defaultSuggestions: initial suggestions to show when component mounts
  */
 const props = defineProps({
     modelValue: {
@@ -40,14 +42,18 @@ const props = defineProps({
         type: Array,
         default: [],
     },
+    defaultSuggestions: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const emit = defineEmits(['update:modelValue', 'select']);
 
-const inputValue = shallowRef('');
-const suggestions = shallowRef([]);
-const showList = shallowRef(false);
-const highlightedIndex = shallowRef(-1);
+const inputValue = ref('');
+const suggestions = ref([]);
+const showList = ref(false);
+const highlightedIndex = ref(-1);
 
 // Sync inputValue when modelValue changes
 watch(
@@ -59,7 +65,7 @@ watch(
 // Debounced search
 const doSearch = debounce(async (q) => {
     if (!q) {
-        suggestions.value = [];
+        suggestions.value = props.defaultSuggestions;
         return;
     }
     const results = await props.searchFn(q);
@@ -68,11 +74,12 @@ const doSearch = debounce(async (q) => {
 }, 500);
 
 function onInput(e) {
-    const q = inputValue.value;
     // clear selection
     emit('update:modelValue', null);
-    doSearch(q);
-    showList.value = true;
+    setTimeout(() => {
+        doSearch(inputValue.value);
+        showList.value = true;
+    }, 100);
 }
 
 function openList() {
@@ -96,7 +103,7 @@ function select(item) {
     emit('update:modelValue', item);
     emit('select', item);
     showList.value = false;
-    suggestions.value = [];
+    suggestions.value = props.defaultSuggestions; // Reset suggestions
 }
 
 function highlightNext() {
@@ -116,6 +123,13 @@ function selectHighlighted() {
         select(suggestions.value[highlightedIndex.value]);
     }
 }
+
+onMounted(() => {
+    // Initialize with default suggestions if provided
+    if (props.defaultSuggestions.length) {
+        suggestions.value = props.defaultSuggestions;
+    }
+});
 </script>
 
 <template>

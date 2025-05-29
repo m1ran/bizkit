@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import OrderForm from './Partials/OrderForm.vue';
 import OrderTable from './Partials/OrderTable.vue';
@@ -8,7 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import HistoryModal from '@/Components/Modals/HistoryModal.vue';
 import DestroyModal from '@/Components/Modals/DestroyModal.vue';
-import ApplyChangesModal from '@/Components/Modals/ApplyChangesModal.vue';
+import ApplyChangesModal from '@/Pages/Orders/Partials/ApplyChangesModal.vue';
 
 defineProps({
     orders: {
@@ -53,11 +53,11 @@ const formTitle = computed(() => {
 });
 
 const order = ref(null);
-const orderId = shallowRef(0);
-const orderNum = shallowRef(null);
-const showFormModal = shallowRef(false);
-const showConfirmationModal = shallowRef(false);
-const showApplyChangesModal = shallowRef(false);
+const orderId = ref(0);
+const orderNum = ref(null);
+const showFormModal = ref(false);
+const showConfirmationModal = ref(false);
+const showApplyChangesModal = ref(false);
 
 const onOpenOrderFormModal = (data = null) => {
     order.value = data;

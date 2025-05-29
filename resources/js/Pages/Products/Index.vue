@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ProductForm from './Partials/ProductForm.vue';
 import ProductTable from './Partials/ProductTable.vue';
@@ -8,32 +8,41 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import HistoryModal from '@/Components/Modals/HistoryModal.vue';
 import DestroyModal from '@/Components/Modals/DestroyModal.vue';
+import ProductCategoriesModal from './Partials/ProductCategoriesModal.vue';
+import { getItemById } from '@/helpers';
 
-defineProps({
+const props = defineProps({
     products: {
         type: Object
+    },
+    categories: {
+        type: Object,
     },
     filters: {
         type: Object
     }
-})
+});
 
 const form = useForm({
     name: '',
     sku: '',
+    cost: 0.00,
     price: 0.01,
     quantity: 1,
+    category_id: null,
+    category: null,
     description: '',
 });
 
 const formTitle = computed(() => {
     return `${product.value ? 'Update' : 'New'} Product`;
-})
+});
 
 const product = ref(null);
-const productId = shallowRef(0);
-const showFormModal = shallowRef(false);
-const showConfirmationModal = shallowRef(false);
+const productId = ref(0);
+const showFormModal = ref(false);
+const showCategoriesModal = ref(false);
+const showConfirmationModal = ref(false);
 
 const onOpenProductFormModal = (data = null) => {
     product.value = data;
@@ -42,6 +51,12 @@ const onOpenProductFormModal = (data = null) => {
         Object.entries(data).forEach(([key, val]) => {
             if (key in form) form[key] = val
         });
+        // set category record
+        if (form.category_id) {
+            form.category = getItemById(form.category_id, props.categories.data);
+        }
+
+
     } else {
         form.reset();
     }
@@ -74,6 +89,13 @@ const formOptions = {
 }
 
 const saveProduct = () => {
+    // set category_id from category object
+    if (form.category) {
+        form.category_id = form.category.id;
+    } else {
+        form.category_id = null;
+    }
+    // save product
     if (product.value) {
         form.post(route('products.update', { id: product.value.id }), formOptions);
     } else {
@@ -93,15 +115,25 @@ const deleteProduct = () => {
                 @open="onOpenProductFormModal"
                 @history="onShowProductHistory"
                 @delete="onConfirmProductModal"
+                @open:categories="showCategoriesModal = true"
                 :products="products"
                 :filters="filters"
+                :categories="categories.data"
             />
 
             <!-- Entity History Modal  -->
             <HistoryModal v-if="productId"
                 entity="product"
                 :id="productId"
+                :num="product.sku"
                 @close="closeModals"
+            />
+
+            <!-- Product Categories Modal -->
+            <ProductCategoriesModal
+                :categories="categories.data"
+                :show="showCategoriesModal"
+                @close="showCategoriesModal = false"
             />
 
             <!-- Delete Entity Confirmation Modal -->
@@ -117,7 +149,7 @@ const deleteProduct = () => {
             <DialogModal :show="showFormModal" @close="closeModals">
                 <template #title>{{ formTitle }}</template>
                 <template #content>
-                    <ProductForm v-model:form="form" @submitted="saveProduct" />
+                    <ProductForm v-model:form="form" :categories="categories.data" @submitted="saveProduct" />
                 </template>
                 <template #footer>
                     <SecondaryButton @click="closeModals">

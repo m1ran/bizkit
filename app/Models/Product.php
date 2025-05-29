@@ -19,6 +19,7 @@ class Product extends Model
         'cost',
         'price',
         'quantity',
+        'category_id',
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class Product extends Model
         'price',
         'quantity',
         'description',
+        'category_id',
     ];
 
     public function team()
@@ -45,6 +47,6 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ProductCategory::class);
     }
 }

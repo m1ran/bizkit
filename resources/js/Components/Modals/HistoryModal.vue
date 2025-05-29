@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, shallowRef } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import DialogModal from '../DialogModal.vue';
 import SecondaryButton from '../SecondaryButton.vue';
 import { firstToUpper } from '@/helpers';
 
-const show = shallowRef(false);
-const history = shallowRef([]);
+const show = ref(false);
+const history = ref([]);
 
 const emit = defineEmits(['close']);
 
@@ -33,10 +33,6 @@ const capitalized = computed(() => {
     return firstToUpper(props.entity);
 });
 
-const close = () => {
-    emit('close');
-};
-
 const hasChanged = (i, key) => {
   const curr = history.value[i]?.data?.[key];
   const prev = history.value[i + 1]?.data?.[key];
@@ -56,7 +52,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <DialogModal :show="show" @close="close">
+    <DialogModal :show="show" @close="$emit('close')">
         <template #title>{{ title }}</template>
         <template #content>
             <ul class="space-y-4 max-h-96 overflow-auto">
@@ -110,7 +106,7 @@ onMounted(async () => {
             </ul>
         </template>
         <template #footer>
-            <SecondaryButton @click="close">
+            <SecondaryButton @click="$emit('close')">
                 Close
             </SecondaryButton>
         </template>

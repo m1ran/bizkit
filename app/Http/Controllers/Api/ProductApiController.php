@@ -11,9 +11,9 @@ class ProductApiController extends Controller
 {
     private ProductService $service;
 
-    public function __construct(EntityServiceFactory $factory)
+    public function __construct(ProductService $service)
     {
-        $this->service = $factory->make('product');
+        $this->service = $service;
     }
 
     /**
