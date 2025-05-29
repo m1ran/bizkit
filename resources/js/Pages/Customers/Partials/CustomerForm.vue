@@ -30,7 +30,7 @@ const onPhoneBlur = () => {
     <form @submit.prevent="$emit('submitted')">
         <div class="grid grid-cols-6 gap-6">
             <div class="col-span-6 sm:col-span-3">
-                <InputLabel for="first_name" value="First Name" />
+                <InputLabel for="first_name" value="First Name" required />
                 <TextInput
                     id="customer-first-name"
                     v-model="form.first_name"
@@ -41,7 +41,7 @@ const onPhoneBlur = () => {
             </div>
 
             <div class="col-span-6 sm:col-span-3">
-                <InputLabel for="last_name" value="Last Name" />
+                <InputLabel for="last_name" value="Last Name" required />
                 <TextInput
                     id="customer-last-name"
                     v-model="form.last_name"

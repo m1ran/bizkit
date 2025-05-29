@@ -46,7 +46,7 @@ const emits = defineEmits(['submitted']);
     <form @submit.prevent="$emit('submitted')">
         <div class="grid grid-cols-6 gap-6">
             <div class="col-span-6 sm:col-span-6">
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Name" required />
                 <TextInput
                     id="product-name"
                     v-model="form.name"
@@ -57,7 +57,7 @@ const emits = defineEmits(['submitted']);
             </div>
 
             <div class="col-span-6 sm:col-span-3">
-                <InputLabel for="sku" value="SKU #" />
+                <InputLabel for="sku" value="SKU #" required />
                 <TextInput
                     id="product-sku"
                     v-model="form.sku"
@@ -75,14 +75,14 @@ const emits = defineEmits(['submitted']);
                     :display="categoryDisplay"
                     v-model="form.category"
                     :default-suggestions="categories"
-                    placeholder="Category..."
+                    placeholder="Choose category..."
                     class="mt-1"
                 />
                 <InputError :message="form.errors.category_id" class="mt-2" />
             </div>
 
             <div class="col-span-6 sm:col-span-2">
-                <InputLabel for="cost" value="Cost" />
+                <InputLabel for="cost" value="Cost" required />
                 <TextInput
                     id="product-cost"
                     v-model="form.cost"
@@ -93,7 +93,7 @@ const emits = defineEmits(['submitted']);
             </div>
 
             <div class="col-span-6 sm:col-span-2">
-                <InputLabel for="price" value="Price" />
+                <InputLabel for="price" value="Price" required />
                 <TextInput
                     id="product-price"
                     v-model="form.price"
@@ -104,7 +104,7 @@ const emits = defineEmits(['submitted']);
             </div>
 
             <div class="col-span-6 sm:col-span-2">
-                <InputLabel for="quantity" value="Quantity" />
+                <InputLabel for="quantity" value="Quantity" required />
                 <TextInput
                     id="product-quantity"
                     v-model="form.quantity"

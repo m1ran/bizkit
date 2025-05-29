@@ -49,13 +49,12 @@ const customerDataIsDirty = computed(() => {
 });
 
 const formTitle = computed(() => {
-    return `${order.value ? 'Update' : 'New'} Order`;
+    return order.value ? `Update Order #${order.value.num}` : 'New Order';
 });
 
 const order = ref(null);
-const orderId = ref(0);
-const orderNum = ref(null);
 const showFormModal = ref(false);
+const showHistoryModal = ref(false);
 const showConfirmationModal = ref(false);
 const showApplyChangesModal = ref(false);
 
@@ -75,8 +74,8 @@ const onOpenOrderFormModal = (data = null) => {
 };
 
 const onShowOrderHistory = (data) => {
-    orderId.value = data.id;
-    orderNum.value = data.num;
+    order.value = data;
+    showHistoryModal.value = true;
 }
 
 const onConfirmOrderModal = (data) => {
@@ -85,7 +84,7 @@ const onConfirmOrderModal = (data) => {
 }
 
 const closeModals = () => {
-    orderId.value = 0;
+    order.value = null;
     showFormModal.value = false;
     showConfirmationModal.value = false;
 };
@@ -131,7 +130,7 @@ const createOrder = () => {
 }
 
 const deleteOrder = () => {
-    form.delete(route('orders.delete', { id: order.value.id }), formOptions);
+    form.delete(route('orders.delete', { id: orderId.value }), formOptions);
 }
 </script>
 
@@ -147,10 +146,10 @@ const deleteOrder = () => {
             />
 
             <!-- Entity History Modal  -->
-            <HistoryModal v-if="orderId"
+            <HistoryModal v-if="order && showHistoryModal"
                 entity="order"
-                :id="orderId"
-                :num="orderNum"
+                :id="order.id"
+                :num="order.num"
                 @close="closeModals"
             />
 

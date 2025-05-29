@@ -85,7 +85,7 @@ onMounted(async () => {
                             :key="key"
                             class="flex items-baseline"
                         >
-                            <span class="font-medium mr-1 capitalize">{{ key }}:</span>
+                            <span class="font-medium mr-1 capitalize">{{ key.replace('_id', '') }}:</span>
                             <span
                                 :class="hasChanged(i, key) ? 'bg-yellow-100 px-1 rounded' : ''"
                                 class="truncate"

@@ -22,7 +22,7 @@ const props = defineProps({
 });
 
 const headers = ref([
-    'ID',
+    '#',
     'Name',
     'Email',
     'Phone',
@@ -69,8 +69,8 @@ watch(q, newValue => {
 
                     <tbody>
                         <template v-if="customers.meta.total">
-                            <tr v-for="customer in customers.data" :key="customer.id" class="hover:bg-gray-100 even:bg-gray-50">
-                                <td class="px-4 py-2 border">{{ customer.id }}</td>
+                            <tr v-for="(customer, key) in customers.data" :key="customer.id" class="hover:bg-gray-100 even:bg-gray-50">
+                                <td class="px-4 py-2 border">{{ key + 1 }}</td>
                                 <td class="px-4 py-2 border">{{ customer.first_name + ' ' + customer.last_name }}</td>
                                 <td class="px-4 py-2 border">{{ customer.email }}</td>
                                 <td class="px-4 py-2 border">{{ customer.phone }}</td>
