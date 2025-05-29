@@ -5,7 +5,7 @@ import TextInput from '@/Components/TextInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
 import Autocomplete from '@/Components/Autocomplete.vue';
 import OrderProducts from './OrderProducts.vue';
-import { shallowRef, watch } from 'vue';
+import { ref, watch } from 'vue';
 import Checkbox from '@/Components/Checkbox.vue';
 
 const { form } = defineProps({
@@ -17,7 +17,7 @@ const { form } = defineProps({
 
 const emits = defineEmits(['submitted']);
 
-const selectedCustomer = shallowRef(null);
+const selectedCustomer = ref(null);
 
 // Fetch customers for autocomplete
 async function searchCustomers(query) {

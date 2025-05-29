@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Http\Requests\ProductRequest;
 use App\Factories\EntityServiceFactory;
+use App\Http\Resources\ProductCategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Services\ProductService;
 use App\Traits\HandleCrudActions;
@@ -27,11 +28,13 @@ class ProductController extends Controller
     {
         $filters = request()->only(['q']);
 
+        $categories = $this->service->listCategories();
         $products = $this->service->listPaginated($filters);
 
         return Inertia::render('Products/Index', [
-            'products' => ProductResource::collection($products),
-            'filters' => $filters,
+            'filters'    => $filters,
+            'products'   => ProductResource::collection($products),
+            'categories' => ProductCategoryResource::collection($categories),
         ]);
     }
 

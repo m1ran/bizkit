@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef } from 'vue';
+import { ref } from 'vue';
 import { defineProps, watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -21,7 +21,7 @@ const props = defineProps({
     },
 });
 
-const headers = shallowRef([
+const headers = ref([
     'ID',
     'Name',
     'Email',

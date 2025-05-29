@@ -3,12 +3,40 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
+import Autocomplete from '@/Components/Autocomplete.vue';
+import { ref, watch } from 'vue';
 
-const { form } = defineProps({
+const { form, categories } = defineProps({
     form: {
         type: Object,
         required: true,
     },
+    categories: {
+        type: Array,
+        required: true,
+        default: () => [],
+    },
+});
+
+const query = ref('');
+const selectedCategory = ref(null);
+
+const searchCategory = async (q) => {
+    query.value = q;
+
+    if (!q) return categories;
+
+    return categories.filter(c => c.name.toLowerCase().includes(q.toLowerCase()));
+}
+
+const categoryDisplay = (c) => c.name;
+
+watch(selectedCategory, (c) => {
+    if (c) {
+        form.category_id = c.id;
+    } else {
+        form.category_id = null;
+    }
 });
 
 const emits = defineEmits(['submitted']);
@@ -28,7 +56,7 @@ const emits = defineEmits(['submitted']);
                 <InputError :message="form.errors.name" class="mt-2" />
             </div>
 
-            <div class="col-span-6 sm:col-span-2">
+            <div class="col-span-6 sm:col-span-3">
                 <InputLabel for="sku" value="SKU #" />
                 <TextInput
                     id="product-sku"
@@ -39,12 +67,37 @@ const emits = defineEmits(['submitted']);
                 <InputError :message="form.errors.sku" class="mt-2" />
             </div>
 
+            <div class="col-span-6 sm:col-span-3">
+                <InputLabel for="product-category-autocomplete" value="Category" />
+                <Autocomplete
+                    id="product-category-autocomplete"
+                    :search-fn="searchCategory"
+                    :display="categoryDisplay"
+                    v-model="selectedCategory"
+                    :default-suggestions="categories"
+                    placeholder="Category..."
+                    class="mt-1"
+                />
+                <InputError :message="form.errors.category_id" class="mt-2" />
+            </div>
+
+            <div class="col-span-6 sm:col-span-2">
+                <InputLabel for="cost" value="Cost" />
+                <TextInput
+                    id="product-cost"
+                    v-model="form.cost"
+                    type="number"
+                    class="block w-full mt-1"
+                />
+                <InputError :message="form.errors.cost" class="mt-2" />
+            </div>
+
             <div class="col-span-6 sm:col-span-2">
                 <InputLabel for="price" value="Price" />
                 <TextInput
                     id="product-price"
                     v-model="form.price"
-                    type="text"
+                    type="number"
                     class="block w-full mt-1"
                 />
                 <InputError :message="form.errors.price" class="mt-2" />

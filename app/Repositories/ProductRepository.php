@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use App\Contracts\TeamScopedRepositoryInterface;
+use App\Models\ProductCategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductRepository implements TeamScopedRepositoryInterface
@@ -24,7 +25,6 @@ class ProductRepository implements TeamScopedRepositoryInterface
                 'id',
                 'name',
                 'sku',
-                'cost',
                 'price',
                 'quantity',
             ])
@@ -63,6 +63,7 @@ class ProductRepository implements TeamScopedRepositoryInterface
                 'cost',
                 'price',
                 'quantity',
+                'category_id',
                 'description',
             ])
             ->latest()

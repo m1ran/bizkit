@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Traits\CustomerValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CustomerRequest extends FormRequest
+class ProductCategoryRequest extends FormRequest
 {
-    use CustomerValidation;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -24,36 +22,22 @@ class CustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        $customerRules = $this->getCustomerRules();
-
         return [
-            ...$customerRules,
-            'notes' => ['nullable', 'string', 'min:2', 'max:1000'],
+            'name' => ['required', 'string', 'min:2', 'max:255'],
         ];
     }
 
     public function attributes(): array
     {
-        $customerAttributes = $this->getCustomerAttributes();
-
         return [
-            ...$customerAttributes,
-            'notes' => __('Notes'),
+            'name' => __('Name'),
         ];
-    }
-
-    public function messages(): array
-    {
-        return $this->getCustomerMessages();
     }
 
     public function prepareForValidation()
     {
-        $preparedFields = $this->prepareCustomerFields();
-
         $this->merge([
-            ...$preparedFields,
-            'notes' => trim($this->notes),
+            'name' => trim($this->name),
         ]);
     }
 }
