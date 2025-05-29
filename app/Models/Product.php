@@ -37,7 +37,10 @@ class Product extends Model
         'price',
         'quantity',
         'description',
-        'category_id',
+        'category_id' => [
+            'relation' => 'category',
+            'display_field' => 'name',
+        ],
     ];
 
     public function team()

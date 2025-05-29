@@ -26,8 +26,8 @@ class AuditableObserver
     private function createAudit(Model $m, string $event)
     {
         $data = ($event === 'deleted')
-            ? $m->getOriginal()
-            : $m->only($m->getAuditableAttributes());
+            ? $m->getOriginalAuditableData()
+            : $m->getAuditableData();
 
         Audit::create([
             'user_id' => Auth::id(),
