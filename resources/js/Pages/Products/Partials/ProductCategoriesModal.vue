@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { reactive, ref } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
+import DestroyModal from '@/Components/Modals/DestroyModal.vue';
 
 const props = defineProps({
     categories: {
@@ -20,7 +21,9 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
+const idToDelete = ref(null);
 const processing = ref(false);
+const showConfirmationModal = ref(false);
 
 const category = reactive({
     id: null,
@@ -61,21 +64,21 @@ const saveCategory = async () => {
     });
 }
 
-const deleteCategory = async (item) => {
-    if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) return;
-
+const deleteCategory = async () => {
     if (processing.value) return;
 
-    if (!item.id) {
+    category.errors = '';
+
+    if (!idToDelete.value) {
         category.errors = 'An unexpected error occurred.';
         return;
     }
 
     processing.value = true;
-    const url  = `/api/product-categories/${item.id}`;
+    const url  = `/api/product-categories/${idToDelete.value}`;
 
     await axios.delete(url).then(response => {
-        const index = props.categories.findIndex(c => c.id === item.id);
+        const index = props.categories.findIndex(c => c.id === idToDelete.value);
         if (index !== -1) {
             props.categories.splice(index, 1);
         }
@@ -84,7 +87,9 @@ const deleteCategory = async (item) => {
     .catch(error => {
         category.errors = error.response?.data?.message || 'An unexpected error occurred.';        })
     .finally(() => {
+        idToDelete.value = null;
         processing.value = false;
+        showConfirmationModal.value = false;
     });
 }
 
@@ -151,7 +156,10 @@ const resetCategory = () => {
                                         Edit
                                     </button>
 
-                                    <button type="button" @click="deleteCategory(item)" class="text-red-500 ml-3">
+                                    <button type="button"
+                                        @click="idToDelete  = item.id; showConfirmationModal = true;"
+                                        class="text-red-500 ml-3"
+                                    >
                                         Remove
                                     </button>
                                 </td>
@@ -170,4 +178,14 @@ const resetCategory = () => {
             </SecondaryButton>
         </template>
     </DialogModal>
+
+
+    <!-- Delete Entity Confirmation Modal -->
+    <DestroyModal
+        entity="category"
+        :show="showConfirmationModal"
+        :processing="processing"
+        @close="showConfirmationModal = false"
+        @confirmed="deleteCategory"
+    />
 </template>
