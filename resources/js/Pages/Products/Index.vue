@@ -35,12 +35,12 @@ const form = useForm({
 });
 
 const formTitle = computed(() => {
-    return `${product.value ? 'Update' : 'New'} Product`;
+    return product.value ? `Update Product #${product.value.sku}` : 'New Product';
 });
 
 const product = ref(null);
-const productId = ref(0);
 const showFormModal = ref(false);
+const showHistoryModal = ref(false);
 const showCategoriesModal = ref(false);
 const showConfirmationModal = ref(false);
 
@@ -55,8 +55,6 @@ const onOpenProductFormModal = (data = null) => {
         if (form.category_id) {
             form.category = getItemById(form.category_id, props.categories.data);
         }
-
-
     } else {
         form.reset();
     }
@@ -66,7 +64,8 @@ const onOpenProductFormModal = (data = null) => {
 };
 
 const onShowProductHistory = (data) => {
-    productId.value = data.id;
+    product.value = data;
+    showHistoryModal.value = true;
 }
 
 const onConfirmProductModal = (data) => {
@@ -75,8 +74,9 @@ const onConfirmProductModal = (data) => {
 }
 
 const closeModals = () => {
-    productId.value = 0;
+    product.value = null;
     showFormModal.value = false;
+    showHistoryModal.value = false;
     showConfirmationModal.value = false;
 };
 
@@ -122,9 +122,9 @@ const deleteProduct = () => {
             />
 
             <!-- Entity History Modal  -->
-            <HistoryModal v-if="productId"
+            <HistoryModal v-if="product && showHistoryModal"
                 entity="product"
-                :id="productId"
+                :id="product.id"
                 :num="product.sku"
                 @close="closeModals"
             />

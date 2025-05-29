@@ -34,6 +34,7 @@ const formTitle = computed(() => {
 const customer = ref(null);
 const customerId = ref(0);
 const showFormModal = ref(false);
+const showHistoryModal = ref(false);
 const showConfirmationModal = ref(false);
 
 const onOpenCustomerFormModal = (data = null) => {
@@ -52,7 +53,9 @@ const onOpenCustomerFormModal = (data = null) => {
 };
 
 const onShowCustomerHistory = (data) => {
-    customerId.value = data.id;
+    customer.value = data;
+    showHistoryModal.value = true;
+
 }
 
 const onConfirmCustomerModal = (data) => {
@@ -61,8 +64,9 @@ const onConfirmCustomerModal = (data) => {
 }
 
 const closeModals = () => {
-    customerId.value = 0;
+    customer.value = null;
     showFormModal.value = false;
+    showHistoryModal.value = false;
     showConfirmationModal.value = false;
 };
 
@@ -99,9 +103,9 @@ const deleteCustomer = () => {
             />
 
             <!-- Entity History Modal  -->
-            <HistoryModal v-if="customerId"
+            <HistoryModal v-if="customer && showHistoryModal"
                 entity="customer"
-                :id="customerId"
+                :id="customer.id"
                 @close="closeModals"
             />
 

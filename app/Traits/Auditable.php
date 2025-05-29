@@ -117,7 +117,7 @@ trait Auditable
     {
         return $this->audits()
             ->with('user')
-            ->orderByDesc('created_at')
+            ->latest()
             ->get();
     }
 }
