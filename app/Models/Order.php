@@ -18,6 +18,10 @@ class Order extends Model
         'status_id',
         'total_cost',
         'total_price',
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
         'notes',
     ];
 
@@ -31,10 +35,13 @@ class Order extends Model
     ];
 
     protected $auditable = [
-        'status_id',
         'total_cost',
         'total_price',
         'notes',
+        'status_id' => [
+            'relation'  => 'status',
+            'attribute' => 'name',
+        ],
     ];
 
     public function team()

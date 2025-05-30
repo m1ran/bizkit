@@ -31,11 +31,11 @@ class OrderRepository implements TeamScopedRepositoryInterface
                 'total_cost',
                 'total_price',
             ])
-            ->orderBy('num')
             ->where('team_id', $teamId)
             ->when(!empty($filters['q']), function ($query) use ($filters) {
                 $query->where('num', 'like', "%{$filters['q']}%");
             })
+            ->latest()
             ->get();
     }
 
@@ -55,17 +55,18 @@ class OrderRepository implements TeamScopedRepositoryInterface
                 'num',
                 'status_id',
                 'customer_id',
-                'status_id',
                 'total_cost',
                 'total_price',
+                'first_name',
+                'last_name',
                 'notes',
                 'created_at',
             ])
-            ->latest()
             ->where('team_id', $teamId)
             ->when(!empty($filters['q']), function ($query) use ($filters) {
                 $query->where('num', 'like', "%{$filters['q']}%");
             })
+            ->latest()
             ->paginate($perPage)
             ->withQueryString()
             ->onEachSide(1);

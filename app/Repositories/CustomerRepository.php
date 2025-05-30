@@ -6,6 +6,7 @@ use App\Contracts\TeamScopedRepositoryInterface;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Filters\CustomerFilter;
 
 class CustomerRepository implements TeamScopedRepositoryInterface
 {
@@ -19,6 +20,8 @@ class CustomerRepository implements TeamScopedRepositoryInterface
      */
     public function getByTeam(int $teamId, array $filters = [], int $limit = 10): Collection
     {
+        $customerFilters = new CustomerFilter($filters);
+
         return Customer::query()
             ->select([
                 'id',
@@ -30,12 +33,7 @@ class CustomerRepository implements TeamScopedRepositoryInterface
             ])
             ->orderBy('first_name')
             ->where('team_id', $teamId)
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('first_name', 'like', "%{$filters['q']}%")
-                    ->orWhere('last_name', 'like', "%{$filters['q']}%")
-                    ->orWhere('email', 'like', "%{$filters['q']}%")
-                    ->orWhere('phone', 'like', "%{$filters['q']}%");
-            })
+            ->tap($customerFilters)
             ->get();
     }
 
@@ -49,6 +47,8 @@ class CustomerRepository implements TeamScopedRepositoryInterface
      */
     public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
+        $customerFilters = new CustomerFilter($filters);
+
         return Customer::query()
             ->select([
                 'id',
@@ -60,16 +60,7 @@ class CustomerRepository implements TeamScopedRepositoryInterface
             ])
             ->latest()
             ->where('team_id', $teamId)
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $q = $filters['q'];
-                $query->where(function ($query) use ($q) {
-                    $query->where('first_name', 'like', "%{$q}%")
-                        ->orWhere('last_name', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%")
-                        ->orWhere('phone', 'like', "%{$q}%")
-                        ->orWhere('notes', 'like', "%{$q}%");
-                });
-            })
+            ->tap($customerFilters)
             ->paginate($perPage)
             ->withQueryString()
             ->onEachSide(1);

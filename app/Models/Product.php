@@ -38,8 +38,8 @@ class Product extends Model
         'quantity',
         'description',
         'category_id' => [
-            'relation' => 'category',
-            'display_field' => 'name',
+            'relation'  => 'category',
+            'attribute' => 'name',
         ],
     ];
 

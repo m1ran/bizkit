@@ -22,7 +22,7 @@ trait Auditable
                 // Common fields: ['name', 'email']
                 $attributes[] = $value;
             } else {
-                // Fields with options: ['category_id' => ['relation' => 'category', 'display_field' => 'name']]
+                // Fields with options: ['category_id' => ['relation' => 'category', 'attribute' => 'name']]
                 $attributes[] = $key;
             }
         }
@@ -50,7 +50,7 @@ trait Auditable
             // Check if the key exists in the data and is not null
             if (isset($data[$key]) && $data[$key] !== null && is_array($value)) {
                 $relationName = $value['relation'] ?? null;
-                $displayField = $value['display_field'] ?? 'name';
+                $displayField = $value['attribute'] ?? 'name';
 
                 if ($relationName) {
                     $relatedModel = $this->findRelatedModel($relationName, $data[$key]);
