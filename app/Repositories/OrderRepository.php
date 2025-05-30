@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Contracts\TeamScopedRepositoryInterface;
+use App\Filters\OrderFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderRepository implements TeamScopedRepositoryInterface
 {
@@ -32,9 +34,7 @@ class OrderRepository implements TeamScopedRepositoryInterface
                 'total_price',
             ])
             ->where('team_id', $teamId)
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('num', 'like', "%{$filters['q']}%");
-            })
+            ->when(!empty($filters), fn($query) => $this->applyFilters($query, $filters))
             ->latest()
             ->get();
     }
@@ -63,9 +63,7 @@ class OrderRepository implements TeamScopedRepositoryInterface
                 'created_at',
             ])
             ->where('team_id', $teamId)
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
-                $query->where('num', 'like', "%{$filters['q']}%");
-            })
+            ->when(!empty($filters), fn($query) => $this->applyFilters($query, $filters))
             ->latest()
             ->paginate($perPage)
             ->withQueryString()
@@ -156,5 +154,13 @@ class OrderRepository implements TeamScopedRepositoryInterface
         $seqPadded = Str::padLeft($nextSeq, 6, '0');
 
         return $prefix . $seqPadded;
+    }
+
+    /**
+     * Apply filters to the query
+     */
+    public function applyFilters(Builder $query, array $filters): Builder
+    {
+        return (new OrderFilter($filters))->apply($query);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Contracts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 interface TeamScopedRepositoryInterface
 {
@@ -19,4 +20,6 @@ interface TeamScopedRepositoryInterface
     public function updateForTeam(int $teamId, int $id, array $data): Model;
 
     public function deleteForTeam(int $teamId, int $id): bool;
+
+    public function applyFilters(Builder $query, array $filters): Builder;
 }
