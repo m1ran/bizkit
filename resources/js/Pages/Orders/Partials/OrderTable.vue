@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { defineProps, watch } from 'vue';
+import { watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TextInput from '@/Components/TextInput.vue';

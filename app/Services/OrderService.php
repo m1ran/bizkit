@@ -220,8 +220,11 @@ class OrderService implements EntityServiceInterface
     {
         $orderData = [
             'customer_id' => $customerId,
-            'notes' => $data['notes'] ?? '',
-            'finished' => $data['finished'] ?? false,
+            'notes'       => $data['notes'] ?? '',
+            'first_name'  => $data['first_name'] ?? '',
+            'last_name'   => $data['last_name'] ?? '',
+            'phone'       => $data['phone'] ?? '',
+            'address'     => $data['address'] ?? '',
         ];
         // Add other order-specific fields
         if (isset($data['num'])) {
