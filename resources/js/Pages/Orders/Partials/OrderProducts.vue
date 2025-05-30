@@ -14,11 +14,7 @@ const props = defineProps({
 });
 
 async function searchProducts(q) {
-    const exclude = [];
-    props.form.items.forEach(item => {
-        if (item.product_id) exclude.push(item.product_id);
-    });
-    const { data } = await axios.get('/api/products', { params: { q, 'exclude': exclude.join(',') } });
+    const { data } = await axios.get('/api/products', { params: { q } });
     return data;
 }
 
