@@ -6,12 +6,12 @@ use App\Models\Order;
 use App\Factories\RepositoryFactory;
 use App\Contracts\EntityServiceInterface;
 use App\Models\OrderStatus;
-use App\Models\Product;
 use App\Repositories\CustomerRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderService implements EntityServiceInterface
@@ -32,7 +32,7 @@ class OrderService implements EntityServiceInterface
         $this->orderRepo = $factory->make('order');
         $this->productRepo = $factory->make('product');
         $this->customerRepo = $factory->make('customer');
-        $this->teamId = auth()->user()->current_team_id;
+        $this->teamId = Auth::user()->current_team_id;
     }
 
     /**
