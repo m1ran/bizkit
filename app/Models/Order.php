@@ -22,6 +22,7 @@ class Order extends Model
         'last_name',
         'email',
         'phone',
+        'address',
         'notes',
     ];
 
@@ -40,7 +41,7 @@ class Order extends Model
         'notes',
         'status_id' => [
             'relation'  => 'status',
-            'attribute' => 'name',
+            'attribute' => 'label',
         ],
     ];
 

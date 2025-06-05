@@ -5,7 +5,7 @@ import { ref } from 'vue';
  * @param {Array} categories - list of categories
  * @returns {Object} - query, selectedCategory, searchCategory, categoryDisplay
  */
-export function useCategoryAutocomplete(categories = []) {
+const useCategoryAutocomplete = (categories = []) => {
     const query = ref('');
     const selectedCategory = ref(null);
 
@@ -23,4 +23,6 @@ export function useCategoryAutocomplete(categories = []) {
         searchCategory,
         categoryDisplay,
     };
-}
+};
+
+export { useCategoryAutocomplete };

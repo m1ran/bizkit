@@ -70,11 +70,14 @@ class ProductRepository implements TeamScopedRepositoryInterface
      *
      * @param int $teamId
      * @param int $id
+     * @param array $relations
      * @return Product
      */
-    public function findByTeam(int $teamId, int $id): Product
+    public function findByTeam(int $teamId, int $id, array $relations = []): Product
     {
-        return Product::where('team_id', $teamId)->find($id);
+        return Product::where('team_id', $teamId)
+            ->when(!empty($relations), fn($query) => $query->with($relations))
+            ->findOrFail($id);
     }
 
     /**

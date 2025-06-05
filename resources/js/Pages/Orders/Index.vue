@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import NProgress from 'nprogress';
 import OrderForm from './Partials/OrderForm.vue';
 import OrderTable from './Partials/OrderTable.vue';
 import DialogModal from '@/Components/DialogModal.vue';
@@ -23,6 +24,7 @@ const props = defineProps({
 });
 
 const form = useForm({
+    id             : null,
     first_name     : '',
     last_name      : '',
     address        : '',
@@ -32,6 +34,7 @@ const form = useForm({
     finished       : false,
     customer       : null,
     customer_id    : null,
+    status_id      : null,
     customer_action: 'keep', // 'keep', 'update', 'create'
 });
 
@@ -61,13 +64,25 @@ const showHistoryModal = ref(false);
 const showConfirmationModal = ref(false);
 const showApplyChangesModal = ref(false);
 
-const onOpenOrderFormModal = (data = null) => {
+const onOpenOrderFormModal = async (data = null) => {
     order.value = data;
 
-    if (data) {
-        Object.entries(data).forEach(([key, val]) => {
-            if (key in form) form[key] = val
-        });
+    if (data?.id) {
+        NProgress.start();
+
+        try {
+            form.id = data.id;
+            const { data: orderData } = await axios.get(`/api/orders/${data.id}`);
+            // Assume the response contains the order object
+            Object.entries(orderData).forEach(([key, val]) => {
+                if (key in form) form[key] = val;
+            });
+        } catch (error) {
+            // TODO: handle error when fetching order details
+            console.error('Error fetching order details:', error);
+        } finally {
+            NProgress.done();
+        }
     } else {
         form.reset();
     }
@@ -89,7 +104,9 @@ const onConfirmOrderModal = (data) => {
 const closeModals = () => {
     order.value = null;
     showFormModal.value = false;
+    showHistoryModal.value = false;
     showConfirmationModal.value = false;
+    showApplyChangesModal.value = false;
 };
 
 const closeApplyChangesModal = () => {
@@ -105,7 +122,11 @@ const applyCustomerChanges = (action) => {
         form.customer_id = null;
     }
 
-    createOrder();
+    if (order.value) {
+        updateOrder();
+    } else {
+        createOrder();
+    }
 };
 
 const formOptions = {
@@ -117,13 +138,13 @@ const formOptions = {
 }
 
 const saveOrder = () => {
-    if (order.value) {
-        form.post(route('orders.update', { id: order.value.id }), formOptions);
-    } else {
-        if (customerDataIsDirty.value) {
-            return showApplyChangesModal.value = true;
-        }
+    if (customerDataIsDirty.value) {
+        return showApplyChangesModal.value = true;
+    }
 
+    if (order.value) {
+        updateOrder();
+    } else {
         createOrder();
     }
 };
@@ -132,8 +153,12 @@ const createOrder = () => {
     form.post(route('orders.store'), formOptions);
 }
 
+const updateOrder = () => {
+    form.put(route('orders.update', { id: order.value.id }), formOptions);
+}
+
 const deleteOrder = () => {
-    form.delete(route('orders.delete', { id: orderId.value }), formOptions);
+    form.delete(route('orders.delete', { id: order.value.id }), formOptions);
 }
 </script>
 
@@ -179,7 +204,7 @@ const deleteOrder = () => {
             <DialogModal :show="showFormModal" @close="closeModals">
                 <template #title>{{ formTitle }}</template>
                 <template #content>
-                    <OrderForm v-model:form="form" @submitted="saveOrder" />
+                    <OrderForm v-model:form="form" :statuses="statuses.data" @submitted="saveOrder" />
                 </template>
                 <template #footer>
                     <SecondaryButton @click="closeModals">

@@ -5,14 +5,50 @@ import TextInput from '@/Components/TextInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
 import Autocomplete from '@/Components/Autocomplete.vue';
 import OrderProducts from './OrderProducts.vue';
-import { ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import Checkbox from '@/Components/Checkbox.vue';
+import { useStatusAutocomplete } from '../composables/useStatusAutocomplete';
 
-const { form } = defineProps({
+const { form, statuses } = defineProps({
     form: {
         type: Object,
         required: true,
     },
+    statuses: {
+        type: Array,
+        required: true,
+    },
+});
+
+const allowedStatuses = computed(() => {
+    const currentStatusOrder = form.status_id ? statuses.find(s => s.id === form.status_id)?.sort_order : 0;
+    return statuses.filter(s => s.sort_order >= currentStatusOrder);
+});
+
+const {
+    query: statusQuery,
+    selectedStatus,
+    searchStatus,
+    statusDisplay
+} = useStatusAutocomplete(allowedStatuses.value);
+
+// Sync selectedStatus with form.status
+watch(
+    () => form.status_id,
+    (val) => {
+        selectedStatus.value = statuses.find(s => s.id === val);
+    },
+    { immediate: true }
+);
+
+watch(selectedStatus, (s) => {
+    if (s) {
+        form.status_id = s.id;
+        form.status = s;
+    } else {
+        form.status_id = null;
+        form.status = null;
+    }
 });
 
 const emits = defineEmits(['submitted']);
@@ -20,14 +56,12 @@ const emits = defineEmits(['submitted']);
 const selectedCustomer = ref(null);
 
 // Fetch customers for autocomplete
-async function searchCustomers(query) {
+const searchCustomers = async (query) => {
     const { data } = await axios.get('/api/customers', { params: { q: query } });
     return data;
 }
 
-function customerDisplay(c) {
-    return c.first_name + ' ' + c.last_name;
-}
+const customerDisplay = (c) => c.first_name + ' ' + c.last_name;
 
 // When customer selected, fill form fields
 watch(selectedCustomer, c => {
@@ -52,6 +86,21 @@ const onPhoneBlur = () => {
         form.phone = '';
     }
 };
+
+onMounted(() => {
+    if (form.customer?.id) {
+        let c =  form.customer;
+        selectedCustomer.value = {
+            id: c.id,
+            email: c.email,
+            // Get contact information from order otherwise from customer
+            phone: form.phone || c.phone,
+            address: form.address || c.address,
+            last_name: form.last_name || c.last_name,
+            first_name: form.first_name || c.first_name,
+        };
+    }
+});
 </script>
 
 <template>
@@ -129,7 +178,28 @@ const onPhoneBlur = () => {
                 <InputError :message="form.errors.address" class="mt-2" />
             </div>
 
+            <div v-if="form.id" class="col-span-6 sm:col-span-3">
+                <InputLabel for="order-status-autocomplete" value="Status" />
+                <Autocomplete
+                    id="order-status-autocomplete"
+                    :search-fn="searchStatus"
+                    :display="statusDisplay"
+                    v-model="selectedStatus"
+                    :default-suggestions="allowedStatuses"
+                    placeholder="Choose status..."
+                    class="mt-1"
+                />
+                <InputError :message="form.errors.status_id" class="mt-2" />
+            </div>
+
             <OrderProducts v-bind:form="form" class="col-span-6 sm:col-span-6" />
+
+            <div v-if="!form.id" class="col-span-6 sm:col-span-3">
+                <label  class="flex items-center">
+                    <Checkbox v-model:checked="form.finished" name="finished" />
+                    <span class="ms-2 text-sm text-gray-600">Mark as finished</span>
+                </label>
+            </div>
 
             <div class="col-span-6 sm:col-span-6">
                 <InputLabel for="notes" value="Notes" />
@@ -140,13 +210,6 @@ const onPhoneBlur = () => {
                     class="block w-full mt-1"
                 />
                 <InputError :message="form.errors.notes" class="mt-2" />
-            </div>
-
-            <div class="col-span-6 sm:col-span-3">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.finished" name="finished" />
-                    <span class="ms-2 text-sm text-gray-600">Mark as finished</span>
-                </label>
             </div>
         </div>
 

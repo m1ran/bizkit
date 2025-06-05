@@ -13,12 +13,14 @@ import timezone from 'dayjs/plugin/timezone'
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faThList } from '@fortawesome/free-solid-svg-icons';
+import { faThList, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+
+import NProgress from 'nprogress';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-library.add(faThList);
+library.add([faThList, faExclamationCircle]);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -32,6 +34,7 @@ createInertiaApp({
             });
     },
     setup({ el, App, props, plugin }) {
+        NProgress.configure({ showSpinner: false });
         const vueApp = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
@@ -42,5 +45,6 @@ createInertiaApp({
     },
     progress: {
         color: '#4B5563',
+        showSpinner: false,
     },
 });

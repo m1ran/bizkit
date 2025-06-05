@@ -27,7 +27,7 @@ Route::middleware('throttle:60,1')
                 ->group(function () {
                     Route::get('/', [CustomerController::class, 'index'])->name('index');
                     Route::post('/', [CustomerController::class, 'store'])->name('store');
-                    Route::post('/{id}', [CustomerController::class, 'update'])->name('update');
+                    Route::put('/{id}', [CustomerController::class, 'update'])->name('update');
                     Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('delete');
                 });
 
@@ -36,7 +36,7 @@ Route::middleware('throttle:60,1')
                 ->group(function () {
                     Route::get('/', [ProductController::class, 'index'])->name('index');
                     Route::post('/', [ProductController::class, 'store'])->name('store');
-                    Route::post('/{id}', [ProductController::class, 'update'])->name('update');
+                    Route::put('/{id}', [ProductController::class, 'update'])->name('update');
                     Route::delete('/{id}', [ProductController::class, 'destroy'])->name('delete');
                 });
 
@@ -45,7 +45,7 @@ Route::middleware('throttle:60,1')
                 ->group(function () {
                     Route::get('/', [OrderController::class, 'index'])->name('index');
                     Route::post('/', [OrderController::class, 'store'])->name('store');
-                    Route::post('/{id}', [OrderController::class, 'update'])->name('update');
+                    Route::put('/{id}', [OrderController::class, 'update'])->name('update');
                     Route::delete('/{id}', [OrderController::class, 'destroy'])->name('delete');
                 });
         });

@@ -2,20 +2,15 @@
 
 namespace App\Http\Requests;
 
-use App\Factories\EntityServiceFactory;
 use App\Rules\ProductHasStock;
+use App\Services\ProductService;
+use App\Traits\CustomerValidation;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateOrderRequest extends FormRequest
 {
-    protected $customerRequest;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->customerRequest = app(CustomerRequest::class);
-    }
+    use CustomerValidation;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -33,22 +28,13 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         $teamId = $this->user()->current_team_id;
-
-        // Get rules from Customer request and merge with order-specific rules
-        $customerRules = $this->customerRequest->rules();
+        $customerRules = $this->getCustomerRules();
 
         $orderRules = [
-            'first_name'       => ['required', 'string', 'min:2', 'max:255'],
-            'last_name'        => ['required', 'string', 'min:2', 'max:255'],
-            'patronymic_name'  => ['nullable', 'string', 'min:2', 'max:255'],
-            'email'            => ['nullable', 'email:rfc,dns', 'max:255'],
-            'phone'            => ['nullable', 'string', 'max:20', 'regex:/^\+[1-9]\d{7,14}$/'],
-            'address'          => ['nullable', 'string', 'max:255'],
-            'city'             => ['nullable', 'string', 'max:255'],
-            'state_id'         => ['nullable', 'exists:states,id'],
-            'zip'              => ['nullable', 'string', 'max:20'],
-            'notes'            => ['nullable', 'string', 'max:1000'],
+            ...$customerRules,
+            'notes' => ['nullable', 'string', 'max:1000'],
             // order‐specific fields:
+            'status_id' => ['required', 'exists:order_statuses,id'],
             'customer_id' => [
                 'nullable',
                 'integer',
@@ -56,21 +42,21 @@ class UpdateOrderRequest extends FormRequest
                     ->where('team_id', $teamId),
             ],
             'status_id' => ['required', 'exists:order_statuses,id'],
-             // items: must be a non‐empty array
+               // items: must be a non‐empty array
             'items' => ['required', 'array', 'min:1'],
-            // each item must refer to a real product
+              // each item must refer to a real product
             'items.*.product_id' => [
                 'required',
                 'integer',
                 Rule::exists('products', 'id')
                     ->where('team_id', $teamId),
             ],
-            // and have at least 1 unit and be in stock
+              // and have at least 1 unit and be in stock
             'items.*.quantity' => [
                 'required',
                 'integer',
                 'min:1',
-                new ProductHasStock(app(EntityServiceFactory::class)),
+                new ProductHasStock(app(ProductService::class)),
             ],
         ];
 

@@ -33,11 +33,12 @@ class ProductService implements EntityServiceInterface
      * Find a product by its ID for the current team.
      *
      * @param int $id
+     * @param array $relations
      * @return Product
      */
-    public function find(int $id): Product
+    public function find(int $id, array $relations = []): Product
     {
-        return $this->repo->findByTeam($this->teamId, $id);
+        return $this->repo->findByTeam($this->teamId, $id, $relations);
     }
 
     /**

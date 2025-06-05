@@ -8,6 +8,7 @@ use App\Repositories\CustomerRepository;
 use App\Contracts\EntityServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CustomerService implements EntityServiceInterface
@@ -21,18 +22,19 @@ class CustomerService implements EntityServiceInterface
     public function __construct(RepositoryFactory $factory)
     {
         $this->repo = $factory->make('customer');
-        $this->teamId = auth()->user()->current_team_id;
+        $this->teamId = Auth::user()->current_team_id;
     }
 
     /**
      * Find a customer by its ID for the current team.
      *
      * @param int $id
+     * @param array $relations
      * @return Customer
      */
-    public function find(int $id): Customer
+    public function find(int $id, array $relations = []): Customer
     {
-        return $this->repo->findByTeam($this->teamId, $id);
+        return $this->repo->findByTeam($this->teamId, $id, $relations);
     }
 
     /**
