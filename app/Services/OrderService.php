@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Order;
 use App\Factories\RepositoryFactory;
 use App\Contracts\EntityServiceInterface;
+use App\Events\OrderCreated;
+use App\Events\OrderUpdated;
 use App\Models\OrderStatus;
 use App\Repositories\CustomerRepository;
 use App\Repositories\OrderRepository;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderService implements EntityServiceInterface
 {
@@ -85,8 +88,9 @@ class OrderService implements EntityServiceInterface
             $orderData = $this->prepareOrderData($data, $customerId);
             // Create the order
             $order = $this->orderRepo->createForTeam($this->teamId, $orderData);
-            // Handle order items
-            $this->handleOrderItems($order, $data['items']);
+            // Dispatch the event
+            OrderCreated::dispatch($order, $data['items']);
+            // $this->handleOrderItems($order, $data['items']);
 
             return $order;
         });
@@ -108,7 +112,15 @@ class OrderService implements EntityServiceInterface
             // Update the order
             $order = $this->orderRepo->updateForTeam($this->teamId, $id, $orderData);
             // Handle order items
-            $this->handleOrderItems($order, $data['items']);
+            $previousItems = $order->items->map(function ($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                ];
+            })->toArray();
+            // Dispatch the event
+            OrderUpdated::dispatch($order, $data['items'], $previousItems);
+            // $this->handleOrderItems($order, $data['items']);
 
             return $order;
         });

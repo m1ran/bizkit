@@ -99,7 +99,9 @@ onMounted(() => {
                 <tbody>
                 <tr v-for="(item, idx) in form.items" :key="idx" class="border-t">
                     <td class="pl-3 py-2 text-center">
-                        <Tooltip text="The unit price of the product has changed." placement="right">
+                        <Tooltip
+                            text="The unit price has changed. Please update the quantity to match the new price."
+                            placement="right">
                             <FontAwesomeIcon v-if="showWarning(item)"
                                 icon="exclamation-circle"
                                 class="text-red-500"
@@ -140,7 +142,7 @@ onMounted(() => {
                     </td>
                 </tr>
                 <tr v-if="!form.items.length">
-                    <td colspan="5" class="px-4 py-2 text-center text-gray-500">No items added.</td>
+                    <td colspan="6" class="px-4 py-2 text-center text-gray-500">No items added.</td>
                 </tr>
                 </tbody>
             </table>
