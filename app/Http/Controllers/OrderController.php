@@ -27,7 +27,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $filters = request()->only(['q']);
+        $filters = request()->only(['q', 'status']);
 
         $products = $this->service->listPaginated($filters);
         $statuses = $this->service->getStatuses();

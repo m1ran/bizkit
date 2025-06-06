@@ -1,36 +1,36 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import Autocomplete from '@/Components/Autocomplete.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
+import Tooltip from '@/Components/Tooltip.vue';
 
-const props = defineProps({
+const { form } = defineProps({
     form: {
         type: Object,
         required: true,
     }
 });
 
-async function searchProducts(q) {
+const searchProducts = async (q) => {
     const { data } = await axios.get('/api/products', { params: { q } });
-    return data;
+    // filter data from selected products in items
+    return data.filter(c => !form.items.some(i => i.product_id === c.id));
 }
 
-function productDisplay(p) {
-    return p.name;
-}
+const productDisplay = (p) => p.name;
 
-function onProductSelect(idx, p) {
-    const item = props.form.items[idx];
+const onProductSelect = (idx, p) => {
+    const item = form.items[idx];
     item.product_id = p.id;
     item.unit_price = p.price;
     updateLineTotal(idx);
 }
 
-function addItem() {
-    props.form.items.push({
+const addItem = () => {
+    form.items.push({
         product: null,
         product_id: null,
         quantity: 1,
@@ -39,24 +39,46 @@ function addItem() {
     });
 }
 
-function removeItem(idx) {
-    props.form.items.splice(idx, 1);
-}
+const removeItem = (idx) => {
+    form.items.splice(idx, 1);
+};
 
-function updateLineTotal(idx) {
-    const item = props.form.items[idx];
-    // prevent excess the limit quantity
-    if (item.product && item.quantity > item.product.quantity) {
-        item.quantity = item.product.quantity;
+const updateLineTotal = (idx) => {
+    const item = form.items[idx];
+    let price = item.unit_price;
+
+    if (item.product) {
+        // prevent excess the limit quantity
+        if (item.quantity > item.product.quantity) {
+            item.quantity = item.product.quantity;
+        }
+        // get price from product
+        price = item.product.price ?? price;
+        item.unit_price = price;
     }
-    item.line_price = item.quantity * item.unit_price;
+    item.line_price = item.quantity * price;
 }
 
-const orderTotal = computed(() => props.form.items.reduce((sum, i) => sum + i.line_price, 0));
+const formatCurrency = (val) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(val);
 
-function formatCurrency(val) {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(val);
+const orderTotal = computed(() => form.items.reduce((sum, i) => sum + i.line_price * 1, 0));
+
+const getMaxInStock = (item) => item.product.quantity + item.quantity;
+
+const showWarning = (item) => {
+    return item.product && item.product.price != item.unit_price;
 }
+
+onMounted(() => {
+    if (form.id) {
+        // put order items in stock limit
+        form.items.forEach((item) => {
+            if (item.product) {
+                item.product.quantity = getMaxInStock(item);
+            }
+        });
+    }
+});
 </script>
 
 <template>
@@ -66,6 +88,7 @@ function formatCurrency(val) {
             <table class="min-w-full table-auto border-collapse mt-2">
                 <thead>
                 <tr class="bg-gray-100">
+                    <th class="pl-3 py-2"></th>
                     <th class="px-4 py-2 text-left">Product</th>
                     <th class="px-4 py-2 text-center">Qty</th>
                     <th class="px-4 py-2 text-right">Unit Price</th>
@@ -75,6 +98,16 @@ function formatCurrency(val) {
                 </thead>
                 <tbody>
                 <tr v-for="(item, idx) in form.items" :key="idx" class="border-t">
+                    <td class="pl-3 py-2 text-center">
+                        <Tooltip
+                            text="The unit price has changed. Please update the quantity to match the new price."
+                            placement="right">
+                            <FontAwesomeIcon v-if="showWarning(item)"
+                                icon="exclamation-circle"
+                                class="text-red-500"
+                            />
+                        </Tooltip>
+                    </td>
                     <td class="px-4 py-2">
                     <Autocomplete
                         :search-fn="searchProducts"
@@ -92,7 +125,7 @@ function formatCurrency(val) {
                         @input="updateLineTotal(idx)"
                         class="w-20 mx-auto"
                         min="1"
-                        :max="item.product ? item.product.quantity : null"
+                        :max="(item.product ? item.product.quantity : null)"
                     />
                     <InputError :message="form.errors[`items.${idx}.quantity`]" class="mt-1 text-red-500" />
                     </td>
@@ -103,13 +136,13 @@ function formatCurrency(val) {
                     {{ formatCurrency(item.line_price) }}
                     </td>
                     <td class="px-4 py-2 text-center">
-                    <button type="button" @click="removeItem(idx)" class="text-red-500">
-                        Remove
-                    </button>
+                        <button type="button" @click="removeItem(idx)" class="text-red-500">
+                            Remove
+                        </button>
                     </td>
                 </tr>
                 <tr v-if="!form.items.length">
-                    <td colspan="5" class="px-4 py-2 text-center text-gray-500">No items added.</td>
+                    <td colspan="6" class="px-4 py-2 text-center text-gray-500">No items added.</td>
                 </tr>
                 </tbody>
             </table>

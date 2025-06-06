@@ -8,6 +8,8 @@ import THead from '@/Components/THead.vue';
 import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 import { getItemById } from '@/helpers';
+import { useStatusAutocomplete } from '../composables/useStatusAutocomplete';
+import Autocomplete from '@/Components/Autocomplete.vue';
 
 const HEADERS = [
     'Num #',
@@ -17,6 +19,7 @@ const HEADERS = [
     'Total Price',
     'Notes',
     'Created',
+    'Updated',
     'Actions',
 ];
 
@@ -50,11 +53,9 @@ const queryOptions = { preserveState: true, replace: true, only: ['orders'] };
 
 const emit = defineEmits(['open', 'history', 'delete']);
 
-const search = debounce ((value) => {
-    router.get(route('orders.index'), { q: value }, queryOptions);
+const searchDebounce = debounce ((value) => {
+    updateFilters();
 }, 500);
-
-const q = ref(props.filters.q);
 
 const statusLabel = (statusId) => {
     return getItemById(statusId, props.statuses, 'label');
@@ -65,25 +66,69 @@ const statusClasses = (statusId) => {
     return COLOR_MAP[statusName] || 'bg-gray-100 text-gray-800'
 }
 
+const q = ref(props.filters.q);
+const selectedStatusId = ref(props.filters.status || null);
+
+
+const {
+    query: statusQuery,
+    selectedStatus,
+    searchStatus,
+    statusDisplay
+} = useStatusAutocomplete(props.statuses);
+
+// Set selectedStatusId from filter on page load
+if (props.filters.status) {
+    const initialStatus = props.statuses.find(
+        s => s.id === Number(props.filters.status)
+    );
+    if (initialStatus) {
+        selectedStatus.value = initialStatus;
+    }
+}
+
 watch(q, newValue => {
-    search(newValue);
+    searchDebounce(newValue);
 });
+
+watch(selectedStatus, (status) => {
+    selectedStatusId.value = status ? status.id : null;
+    updateFilters();
+});
+
+const updateFilters = () => {
+    router.get(route('orders.index'), {
+        q: q.value,
+        status: selectedStatusId.value,
+    }, queryOptions);
+}
 </script>
 
 <template>
     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
         <div class="py-6 px-4 max-w-7xl mx-auto">
             <div class="mb-4 flex justify-between items-center">
-                <TextInput
-                    id="order-search"
-                    v-model="q"
-                    type="text"
-                    class="block w-1/3 mt-1"
-                    autofocus
-                    placeholder="Search orders..."
-                />
+                <div class="flex gap-4 w-2/3">
+                    <TextInput
+                        id="order-search"
+                        v-model="q"
+                        type="text"
+                        class="block w-1/3 mt-1"
+                        autofocus
+                        placeholder="Search orders..."
+                    />
+                    <Autocomplete
+                        id="order-status-filter"
+                        :search-fn="searchStatus"
+                        :display="statusDisplay"
+                        v-model="selectedStatus"
+                        :default-suggestions="props.statuses"
+                        placeholder="Filter by status..."
+                        class="mt-1 w-1/3"
+                    />
+                </div>
 
-                <PrimaryButton @click="$emit('open')">
+                <PrimaryButton @click="$emit('open')" >
                     + Add Order
                 </PrimaryButton>
             </div>
@@ -109,7 +154,10 @@ watch(q, newValue => {
                                 <td class="px-4 py-2 border">{{ order.total_price }}</td>
                                 <td class="px-4 py-2 border">{{ order.notes }}</td>
                                 <td class="px-4 py-2 border">
-                                    {{ $dayjs(order.created_at).tz('Europe/Kyiv').format('DD.MM.YYYY HH:mm:ss') }}
+                                    {{ $dayjs(order.created_at).tz('Europe/Kyiv').format('DD.MM.YYYY HH:mm') }}
+                                </td>
+                                <td class="px-4 py-2 border">
+                                    {{ $dayjs(order.updated_at).tz('Europe/Kyiv').format('DD.MM.YYYY HH:mm') }}
                                 </td>
                                 <td class="px-4 py-2 border">
                                     <button

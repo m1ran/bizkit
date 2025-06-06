@@ -14,8 +14,8 @@ class ProductFilter extends BaseFilter
         $searchQuery = $this->filters['q'];
 
         return $query->where(function ($query) use ($searchQuery) {
-                $query->where('sku', 'like', "%{$searchQuery}%")
-                    ->orWhere('name', 'like', "%{$searchQuery}%");
+                $query->where('sku', 'like', "{$searchQuery}%")
+                    ->orWhere('name', 'like', "{$searchQuery}%");
             });
     }
 

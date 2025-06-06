@@ -18,6 +18,7 @@ class OrderStatusResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'label'  => $this->label,
+            'sort_order' => $this->sort_order,
         ];
     }
 }

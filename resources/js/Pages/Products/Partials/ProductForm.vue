@@ -4,7 +4,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
 import Autocomplete from '@/Components/Autocomplete.vue';
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
+import { useCategoryAutocomplete } from '../composables/useCategoryAutocomplete';
 
 const { form, categories } = defineProps({
     form: {
@@ -18,24 +19,29 @@ const { form, categories } = defineProps({
     },
 });
 
-const query = ref('');
-const selectedCategory = ref(null);
+const {
+    query: categoryQuery,
+    selectedCategory,
+    searchCategory,
+    categoryDisplay
+} = useCategoryAutocomplete(categories);
 
-const searchCategory = async (q) => {
-    query.value = q;
-
-    if (!q) return categories;
-
-    return categories.filter(c => c.name.toLowerCase().includes(q.toLowerCase()));
-}
-
-const categoryDisplay = (c) => c.name;
+// Sync selectedCategory with form.category
+watch(
+    () => form.category,
+    (val) => {
+        selectedCategory.value = val;
+    },
+    { immediate: true }
+);
 
 watch(selectedCategory, (c) => {
     if (c) {
         form.category_id = c.id;
+        form.category = c;
     } else {
         form.category_id = null;
+        form.category = null;
     }
 });
 
@@ -73,7 +79,7 @@ const emits = defineEmits(['submitted']);
                     id="product-category-autocomplete"
                     :search-fn="searchCategory"
                     :display="categoryDisplay"
-                    v-model="form.category"
+                    v-model="selectedCategory"
                     :default-suggestions="categories"
                     placeholder="Choose category..."
                     class="mt-1"

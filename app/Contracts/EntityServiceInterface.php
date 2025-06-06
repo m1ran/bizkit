@@ -8,7 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface EntityServiceInterface
 {
-    public function find(int $id): Model;
+    public function find(int $id, array $relations = []): Model;
 
     public function list(array $filters, int $limit): Collection;
 

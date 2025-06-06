@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { defineProps, watch } from 'vue';
+import { watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -9,6 +9,8 @@ import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { getItemById } from '@/helpers';
+import Autocomplete from '@/Components/Autocomplete.vue';
+import { useCategoryAutocomplete } from '../composables/useCategoryAutocomplete';
 
 const HEADERS = [
     'SKU #',
@@ -43,30 +45,71 @@ const queryOptions = { preserveState: true, replace: true, only: ['products'] };
 
 const emit = defineEmits(['open', 'history', 'delete', 'open:categories']);
 
-const search = debounce ((value) => {
-    router.get(route('products.index'), { q: value }, queryOptions);
+const searchDebounce = debounce (() => {
+    updateFilters();
 }, 500);
 
 const q = ref(props.filters.q);
 
+const {
+    query: categoryQuery,
+    selectedCategory,
+    searchCategory,
+    categoryDisplay
+} = useCategoryAutocomplete(props.categories);
+
+const selectedCategoryId = ref(props.filters.category || null);
+
+// Set selectedCategory from filter on page load
+if (props.filters.category) {
+    const initialCategory = props.categories.find(
+        c => c.id === Number(props.filters.category)
+    );
+    if (initialCategory) {
+        selectedCategory.value = initialCategory;
+    }
+}
+
 watch(q, newValue => {
-    search(newValue);
+    searchDebounce();
 });
+
+watch(selectedCategory, (cat) => {
+    selectedCategoryId.value = cat ? cat.id : null;
+    updateFilters();
+});
+
+const updateFilters = () => {
+    router.get(route('products.index'), {
+        q: q.value,
+        category: selectedCategoryId.value,
+    }, queryOptions);
+}
 </script>
 
 <template>
     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
         <div class="py-6 px-4 max-w-7xl mx-auto">
             <div class="mb-4 flex justify-between items-center">
-                <TextInput
-                    id="product-search"
-                    v-model="q"
-                    type="text"
-                    class="block w-1/3 mt-1"
-                    autofocus
-                    placeholder="Search products..."
-                />
-
+                <div class="flex gap-4 w-2/3">
+                    <TextInput
+                        id="product-search"
+                        v-model="q"
+                        type="text"
+                        class="block w-1/3 mt-1"
+                        autofocus
+                        placeholder="Search products..."
+                    />
+                    <Autocomplete
+                        id="product-category-filter"
+                        :search-fn="searchCategory"
+                        :display="categoryDisplay"
+                        v-model="selectedCategory"
+                        :default-suggestions="props.categories"
+                        placeholder="Filter by category..."
+                        class="mt-1 w-1/3"
+                    />
+                </div>
                 <div class="flex">
                     <SecondaryButton @click="$emit('open:categories')">
                         <FontAwesomeIcon icon="th-list" class="mr-2" />

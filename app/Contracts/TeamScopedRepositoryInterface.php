@@ -13,7 +13,7 @@ interface TeamScopedRepositoryInterface
 
     public function getByTeamPaginated(int $teamId, array $filters = [], int $perPage): LengthAwarePaginator;
 
-    public function findByTeam(int $teamId, int $id): Model;
+    public function findByTeam(int $teamId, int $id, array $relations = []): Model;
 
     public function createForTeam(int $teamId, array $data): Model;
 

@@ -32,10 +32,9 @@ class ProductHasStock implements DataAwareRule, ValidationRule
     {
         try {
             $quantity = Arr::get($this->data, $attribute);
-            $productId = Arr::get($this->data, str_replace('quantity', 'product_id', $attribute));
+            $quantityInStock = Arr::get($this->data, str_replace('quantity', 'product.quantity', $attribute));
 
-            $product = $this->service->find($productId);
-            if ($product->quantity < $quantity) {
+            if ($quantityInStock < $quantity) {
                 $fail(__('The product does not have enough stock.'));
             }
         } catch (\Exception $e) {

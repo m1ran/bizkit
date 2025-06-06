@@ -21,11 +21,7 @@ class ProductApiController extends Controller
      */
     public function index()
     {
-        $filters = request()->only(['q', 'exclude']);
-
-        if (isset($filters['exclude'])) {
-            $filters['exclude'] = explode(',', $filters['exclude']);
-        }
+        $filters = request()->only(['q']);
 
         $products = $this->service->list($filters);
 

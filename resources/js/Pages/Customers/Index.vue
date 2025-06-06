@@ -80,7 +80,7 @@ const formOptions = {
 
 const saveCustomer = () => {
     if (customer.value) {
-        form.post(route('customers.update', { id: customer.value.id }), formOptions);
+        form.put(route('customers.update', { id: customer.value.id }), formOptions);
     } else {
         form.post(route('customers.store'), formOptions);
     }

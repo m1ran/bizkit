@@ -5,14 +5,17 @@ namespace App\Services;
 use App\Models\Order;
 use App\Factories\RepositoryFactory;
 use App\Contracts\EntityServiceInterface;
+use App\Events\OrderCreated;
+use App\Events\OrderUpdated;
 use App\Models\OrderStatus;
-use App\Models\Product;
 use App\Repositories\CustomerRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderService implements EntityServiceInterface
 {
@@ -32,18 +35,19 @@ class OrderService implements EntityServiceInterface
         $this->orderRepo = $factory->make('order');
         $this->productRepo = $factory->make('product');
         $this->customerRepo = $factory->make('customer');
-        $this->teamId = auth()->user()->current_team_id;
+        $this->teamId = Auth::user()->current_team_id;
     }
 
     /**
      * Find an order by its ID for the current team.
      *
      * @param int $id
+     * @param array $relations
      * @return Order
      */
-    public function find(int $id): Order
+    public function find(int $id, array $relations = []): Order
     {
-        return $this->orderRepo->findByTeam($this->teamId, $id);
+        return $this->orderRepo->findByTeam($this->teamId, $id, $relations);
     }
 
     /**
@@ -84,8 +88,9 @@ class OrderService implements EntityServiceInterface
             $orderData = $this->prepareOrderData($data, $customerId);
             // Create the order
             $order = $this->orderRepo->createForTeam($this->teamId, $orderData);
-            // Handle order items
-            $this->handleOrderItems($order, $data['items']);
+            // Dispatch the event
+            OrderCreated::dispatch($order, $data['items']);
+            // $this->handleOrderItems($order, $data['items']);
 
             return $order;
         });
@@ -101,7 +106,23 @@ class OrderService implements EntityServiceInterface
     public function update(int $id, array $data): Order
     {
         return DB::transaction(function () use ($id, $data) {
-            return $this->orderRepo->updateForTeam($this->teamId, $id, $data);
+            $customerId = $this->handleCustomerAction($data);
+            // Prepare order data
+            $orderData = $this->prepareOrderData($data, $customerId);
+            // Update the order
+            $order = $this->orderRepo->updateForTeam($this->teamId, $id, $orderData);
+            // Handle order items
+            $previousItems = $order->items->map(function ($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                ];
+            })->toArray();
+            // Dispatch the event
+            OrderUpdated::dispatch($order, $data['items'], $previousItems);
+            // $this->handleOrderItems($order, $data['items']);
+
+            return $order;
         });
     }
 
@@ -255,39 +276,69 @@ class OrderService implements EntityServiceInterface
      */
     private function handleOrderItems(Order $order, array $items): void
     {
-        // Clear existing items if updating and put quantity in stock
-        if ($order->exists) {
-            $orderItems = $order->items();
-            foreach ($orderItems as $item) {
-                $item->product->increment('quantity', $item->quantity);
-                $item->delete();
-            }
-        }
+        // Get current order items indexed by product_id
+        $existingItems = $order->items()->get()->keyBy('product_id');
+        $newItems = collect($items)->keyBy('product_id');
 
         $totalCost = 0;
         $totalPrice = 0;
+        // Iterate over new items
+        foreach ($newItems as $productId => $item) {
+            $product = $this->productRepo->findByTeam($this->teamId, $productId);
 
-        foreach ($items as $item) {
-            $product = $this->productRepo->findByTeam($this->teamId, $item['product_id']);
+            $existingItem = $existingItems->get($productId);
 
-            $product->decrement('quantity', $item['quantity']);
-            // Calculate line cost and price
-            $lineCost = $item['quantity'] * ($product->cost ?? 0);
-            $linePrice = $item['quantity'] * ($product->price ?? 0);
+            $quantity = $item['quantity'];
+            $unitCost = $product->cost ?? 0;
+            $unitPrice = $product->price ?? 0;
+            $lineCost = $quantity * $unitCost;
+            $linePrice = $quantity * $unitPrice;
 
-            $order->items()->create([
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'unit_cost' => $product->cost ?? 0,
-                'unit_price' => $product->price ?? 0,
-                // 'line_cost' => $lineCost,
-                // 'line_price' => $linePrice,
-            ]);
+            if ($existingItem) {
+                // If quantity or price changed, update the item
+                $quantityDiff = $quantity - $existingItem->quantity;
+                // Adjust stock based on quantity difference
+                if ($quantityDiff > 0) {
+                    $product->decrement('quantity', $quantityDiff);
+                } else if ($quantityDiff < 0) {
+                    $product->increment('quantity', abs($quantityDiff));
+                }
+
+                if (
+                    $existingItem->quantity !== $quantity ||
+                    $existingItem->unit_cost != $unitCost ||
+                    $existingItem->unit_price != $unitPrice
+                ) {
+                    $existingItem->update([
+                        'quantity' => $quantity,
+                        'unit_cost' => $unitCost,
+                        'unit_price' => $unitPrice,
+                    ]);
+                }
+            } else {
+                // If item is new, create it and decrement stock
+                $product->decrement('quantity', $quantity);
+
+                $order->items()->create([
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'unit_cost' => $unitCost,
+                    'unit_price' => $unitPrice,
+                ]);
+            }
 
             $totalCost += $lineCost;
             $totalPrice += $linePrice;
         }
 
+        // Iterate over old items and delete those not present in new items
+        foreach ($existingItems as $productId => $existingItem) {
+            if (!$newItems->has($productId)) {
+                // Return stock to inventory
+                $existingItem->product->increment('quantity', $existingItem->quantity);
+                $existingItem->delete();
+            }
+        }
         // Update order totals
         $order->update([
             'total_cost' => $totalCost,

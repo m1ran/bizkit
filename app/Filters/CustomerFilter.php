@@ -14,9 +14,9 @@ class CustomerFilter extends BaseFilter
         $searchQuery = $this->filters['q'];
 
         return $query->where(function ($query) use ($searchQuery) {
-                $query->where('first_name', 'like', "%{$searchQuery}%")
-                    ->orWhere('last_name', 'like', "%{$searchQuery}%")
-                    ->orWhere('email', 'like', "%{$searchQuery}%")
+                $query->where('first_name', 'like', "{$searchQuery}%")
+                    ->orWhere('last_name', 'like', "{$searchQuery}%")
+                    ->orWhere('email', 'like', "{$searchQuery}%")
                     ->orWhere('phone', 'like', "%{$searchQuery}%");
             });
     }

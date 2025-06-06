@@ -59,8 +59,11 @@ class OrderRepository implements TeamScopedRepositoryInterface
                 'total_price',
                 'first_name',
                 'last_name',
+                'phone',
+                'address',
                 'notes',
                 'created_at',
+                'updated_at',
             ])
             ->where('team_id', $teamId)
             ->when(!empty($filters), fn($query) => $this->applyFilters($query, $filters))
@@ -75,11 +78,14 @@ class OrderRepository implements TeamScopedRepositoryInterface
      *
      * @param int $teamId
      * @param int $id
+     * @param array $relations
      * @return Order
      */
-    public function findByTeam(int $teamId, int $id): Order
+    public function findByTeam(int $teamId, int $id, array $relations = []): Order
     {
-        return Order::where('team_id', $teamId)->find($id);
+        return Order::where('team_id', $teamId)
+            ->when(!empty($relations), fn($query) => $query->with($relations))
+            ->findOrFail($id);
     }
 
     /**

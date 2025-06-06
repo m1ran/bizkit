@@ -26,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $filters = request()->only(['q']);
+        $filters = request()->only(['q', 'category']);
 
         $categories = $this->service->listCategories();
         $products = $this->service->listPaginated($filters);

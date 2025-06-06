@@ -14,7 +14,7 @@ class OrderFilter extends BaseFilter
         $searchQuery = $this->filters['q'];
 
         return $query->where(function ($query) use ($searchQuery) {
-                $query->where('num', 'like', "%{$searchQuery}%");
+                $query->where('num', 'like', "%{$searchQuery}");
             });
     }
 }

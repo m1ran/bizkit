@@ -90,14 +90,10 @@ const formOptions = {
 
 const saveProduct = () => {
     // set category_id from category object
-    if (form.category) {
-        form.category_id = form.category.id;
-    } else {
-        form.category_id = null;
-    }
+    form.category_id = form.category?.id;
     // save product
     if (product.value) {
-        form.post(route('products.update', { id: product.value.id }), formOptions);
+        form.put(route('products.update', { id: product.value.id }), formOptions);
     } else {
         form.post(route('products.store'), formOptions);
     }

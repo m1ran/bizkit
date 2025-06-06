@@ -68,11 +68,14 @@ class CustomerRepository implements TeamScopedRepositoryInterface
      *
      * @param int $teamId
      * @param int $id
+     * @param array $relations
      * @return Customer
      */
-    public function findByTeam(int $teamId, int $id): Customer
+    public function findByTeam(int $teamId, int $id, array $relations = []): Customer
     {
-        return Customer::where('team_id', $teamId)->find($id);
+        return Customer::where('team_id', $teamId)
+            ->when(!empty($relations), fn($query) => $query->with($relations))
+            ->findOrFail($id);
     }
 
     /**
